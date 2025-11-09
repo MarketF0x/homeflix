@@ -179,47 +179,6 @@ export default function App() {
     };
   }, [selectedVideo]);
 
-  // Rotation des catégories toutes les heures
-  useEffect(() => {
-    if (!categories) return;
-
-    const shuffle = () => {
-      setCategories(prev => {
-        if (!prev) return prev;
-        const newCategories = { ...prev };
-        
-        // Ne pas toucher aux catégories spéciales
-        const { to_resume, watched, carousel, ...rest } = newCategories;
-        
-        // Mélanger les années et genres
-        if (rest.by_year) {
-          const years = Object.keys(rest.by_year);
-          const shuffledYears = years.sort(() => Math.random() - 0.5);
-          newCategories.by_year = Object.fromEntries(
-            shuffledYears.map(year => [year, rest.by_year[year]])
-          );
-        }
-        
-        if (rest.by_genre) {
-          const genres = Object.keys(rest.by_genre);
-          const shuffledGenres = genres.sort(() => Math.random() - 0.5);
-          newCategories.by_genre = Object.fromEntries(
-            shuffledGenres.map(genre => [genre, rest.by_genre[genre]])
-          );
-        }
-        
-        return newCategories;
-      });
-    };
-
-    // Premier mélange
-    shuffle();
-    
-    // Mélange toutes les 24 heures
-    const interval = setInterval(shuffle, 24 * 3600000);
-    return () => clearInterval(interval);
-  }, [categories?.by_year, categories?.by_genre]);
-
   useEffect(() => {
     load(mode);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -264,7 +223,7 @@ export default function App() {
             />
           )}
         </div>
-        {Object.entries(categories.by_year || {}).map(([year, videos]) => (
+        {Object.entries(categories.by_year || {}).slice(0, 3).map(([year, videos]) => (
           <CategoryRow
             key={year}
             title={`${t("categories.films_of")} ${year}`}
@@ -273,7 +232,7 @@ export default function App() {
             cacheKey={cacheKey}
           />
         ))}
-        {Object.entries(categories.by_genre || {}).map(([genre, videos]) => (
+        {Object.entries(categories.by_genre || {}).slice(0, 3).map(([genre, videos]) => (
           <CategoryRow
             key={genre}
             title={`${t("categories.genre")} ${genre.charAt(0).toUpperCase() + genre.slice(1)}`}

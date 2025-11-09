@@ -13,11 +13,25 @@ function CategoryRow({ title, videos, onSelect, cacheKey = 0 }) {
 
   const scroll = (direction) => {
     if (scrollContainerRef.current) {
-      const scrollAmount = scrollContainerRef.current.clientWidth * 0.8;
-      scrollContainerRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      
+      if (direction === 'right') {
+        // Si on est à la fin, revenir au début
+        if (scrollLeft >= scrollWidth - clientWidth - 10) {
+          scrollContainerRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          const scrollAmount = clientWidth * 0.8;
+          scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+      } else {
+        // Si on est au début, aller à la fin
+        if (scrollLeft <= 0) {
+          scrollContainerRef.current.scrollTo({ left: scrollWidth, behavior: 'smooth' });
+        } else {
+          const scrollAmount = clientWidth * 0.8;
+          scrollContainerRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        }
+      }
     }
   };
 
@@ -33,15 +47,13 @@ function CategoryRow({ title, videos, onSelect, cacheKey = 0 }) {
     <div className="category-row">
       <h3 className="category-title">{title}</h3>
       <div className="category-scroll-container">
-        {showLeftArrow && (
-          <button 
-            className="category-scroll-button left"
-            onClick={() => scroll('left')}
-            aria-label="Défiler à gauche"
-          >
-            ‹
-          </button>
-        )}
+        <button 
+          className="category-scroll-button left"
+          onClick={() => scroll('left')}
+          aria-label="Défiler à gauche"
+        >
+          ‹
+        </button>
         <div 
           className="category-scroll"
           ref={scrollContainerRef}
@@ -68,15 +80,13 @@ function CategoryRow({ title, videos, onSelect, cacheKey = 0 }) {
           </div>
         ))}
         </div>
-        {showRightArrow && (
-          <button 
-            className="category-scroll-button right"
-            onClick={() => scroll('right')}
-            aria-label="Défiler à droite"
-          >
-            ›
-          </button>
-        )}
+        <button 
+          className="category-scroll-button right"
+          onClick={() => scroll('right')}
+          aria-label="Défiler à droite"
+        >
+          ›
+        </button>
       </div>
     </div>
   );

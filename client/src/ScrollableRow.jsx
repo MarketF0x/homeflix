@@ -9,11 +9,25 @@ export default function ScrollableRow({ title, videos, onSelect, cacheKey, onClo
 
   const scroll = (direction) => {
     if (rowRef.current) {
-      const scrollAmount = rowRef.current.clientWidth * 0.8;
-      rowRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      });
+      const { scrollLeft, scrollWidth, clientWidth } = rowRef.current;
+      
+      if (direction === 'right') {
+        // Si on est à la fin, revenir au début
+        if (scrollLeft >= scrollWidth - clientWidth - 10) {
+          rowRef.current.scrollTo({ left: 0, behavior: 'smooth' });
+        } else {
+          const scrollAmount = clientWidth * 0.8;
+          rowRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+      } else {
+        // Si on est au début, aller à la fin
+        if (scrollLeft <= 0) {
+          rowRef.current.scrollTo({ left: scrollWidth, behavior: 'smooth' });
+        } else {
+          const scrollAmount = clientWidth * 0.8;
+          rowRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        }
+      }
     }
   };
 
@@ -31,15 +45,13 @@ export default function ScrollableRow({ title, videos, onSelect, cacheKey, onClo
     <div className="scrollable-section">
       <h3 className="section-title">{title}</h3>
       <div className="scrollable-container">
-        {showLeftArrow && (
-          <button 
-            className="scroll-arrow left"
-            onClick={() => scroll('left')}
-            aria-label="Défiler à gauche"
-          >
-            ‹
-          </button>
-        )}
+        <button 
+          className="scroll-arrow left"
+          onClick={() => scroll('left')}
+          aria-label="Défiler à gauche"
+        >
+          ‹
+        </button>
         <div 
           className="scrollable-content"
           ref={rowRef}
@@ -58,15 +70,13 @@ export default function ScrollableRow({ title, videos, onSelect, cacheKey, onClo
             </div>
           ))}
         </div>
-        {showRightArrow && (
-          <button 
-            className="scroll-arrow right"
-            onClick={() => scroll('right')}
-            aria-label="Défiler à droite"
-          >
-            ›
-          </button>
-        )}
+        <button 
+          className="scroll-arrow right"
+          onClick={() => scroll('right')}
+          aria-label="Défiler à droite"
+        >
+          ›
+        </button>
       </div>
     </div>
   );
