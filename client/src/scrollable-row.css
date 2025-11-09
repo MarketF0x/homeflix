@@ -1,0 +1,70 @@
+.scrollable-section {
+  margin: 30px 0;
+}
+
+.section-title {
+  font-size: 1.5em;
+  color: #fff;
+  margin: 0 0 15px 20px;
+}
+
+.scrollable-container {
+  position: relative;
+  width: 100%;
+}
+
+.scrollable-content {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  gap: 20px;
+  padding: 10px 40px;
+  margin: 0;
+}
+
+.scrollable-content::-webkit-scrollbar {
+  display: none;
+}
+
+.video-item {
+  flex: 0 0 200px;
+  transition: transform 0.2s ease;
+}
+
+.video-item:hover {
+  transform: scale(1.05);
+  z-index: 1;
+}
+
+.scroll-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 2;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scroll-arrow:hover {
+  background: rgba(0, 0, 0, 0.9);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.scroll-arrow.left {
+  left: 10px;
+}
+
+.scroll-arrow.right {
+  right: 10px;
+}

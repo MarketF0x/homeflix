@@ -1,0 +1,64 @@
+.secondary-page {
+  position: fixed;
+  top: 70px; /* Espace pour la barre de navigation */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px;
+}
+
+.secondary-page-overlay {
+  position: fixed;
+  top: 70px; /* Aligner avec la page secondaire */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.95);
+  z-index: 1001;
+}
+
+.secondary-page-content {
+  position: relative;
+  z-index: 1002;
+  background-color: #141414;
+  border-radius: 8px;
+  width: 95vw;
+  max-width: 1400px;
+  height: calc(100vh - 90px);
+  overflow-y: auto;
+  color: white;
+  padding: 20px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.secondary-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.close-button {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 5px;
+  transition: opacity 0.2s;
+}
+
+.close-button:hover {
+  opacity: 0.7;
+}
+
+/* Prévenir le scroll de la page principale quand une modale est ouverte */
+body.modal-open {
+  overflow: hidden;
+}

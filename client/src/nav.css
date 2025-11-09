@@ -1,0 +1,31 @@
+/* Style des boutons de navigation pour qu'ils ressemblent à des liens */
+.header-nav .nav-item {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: color 0.2s, transform 0.1s;
+  font-family: inherit;
+  text-transform: none;
+}
+
+.header-nav .nav-item:hover {
+  color: white;
+  transform: scale(1.05);
+}
+
+.header-nav .nav-item:active {
+  transform: scale(0.95);
+}
+
+/* Ajustements pour éviter les conflits de z-index */
+.netflix-header {
+  position: relative;
+  z-index: 10;
+}
+
+.secondary-page {
+  isolation: isolate;
+}

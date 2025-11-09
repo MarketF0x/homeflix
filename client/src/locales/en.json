@@ -1,0 +1,52 @@
+{
+  "nav": {
+    "all": "All",
+    "watched": "Watched",
+    "to_resume": "Resume",
+    "by_year": "By Year",
+    "by_genre": "By Genre",
+    "random": "🎲 Random"
+  },
+  "modes": {
+    "mixed": "🎬 All",
+    "films": "🎞️ Movies",
+    "series": "📺 Series"
+  },
+  "categories": {
+    "resume": "⏸ Resume Watching",
+    "watched": "📺 Watched",
+    "films_of": "📅 Movies from",
+    "genre": "🎭"
+  },
+  "common": {
+    "loading": "Loading...",
+    "no_video": "No video available",
+    "close": "Close",
+    "play": "Play",
+    "duration": "Duration",
+    "size": "Size",
+    "watched_label": "Watched",
+    "not_watched": "Not watched",
+    "open_folder": "Open folder",
+    "scan": "Scan",
+    "settings": "Settings"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "video_directories": "Video Directories",
+    "add_directory": "Add Directory",
+    "remove": "Remove",
+    "tmdb_api_key": "TMDb API Key",
+    "save": "Save",
+    "cancel": "Cancel",
+    "auto_clean": "Auto-clean filenames",
+    "min_film_duration": "Min film duration (min)",
+    "max_series_duration": "Max series duration (min)"
+  },
+  "errors": {
+    "no_video_mode": "No video available for this mode",
+    "no_resume": "No video to resume",
+    "cannot_resume": "Cannot resume video"
+  }
+}

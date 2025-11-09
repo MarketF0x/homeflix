@@ -1,0 +1,52 @@
+{
+  "nav": {
+    "all": "Alle",
+    "watched": "Gesehen",
+    "to_resume": "Fortsetzen",
+    "by_year": "Nach Jahr",
+    "by_genre": "Nach Genre",
+    "random": "🎲 Zufall"
+  },
+  "modes": {
+    "mixed": "🎬 Alle",
+    "films": "🎞️ Filme",
+    "series": "📺 Serien"
+  },
+  "categories": {
+    "resume": "⏸ Wiedergabe fortsetzen",
+    "watched": "📺 Gesehen",
+    "films_of": "📅 Filme aus",
+    "genre": "🎭"
+  },
+  "common": {
+    "loading": "Wird geladen...",
+    "no_video": "Kein Video verfügbar",
+    "close": "Schließen",
+    "play": "Abspielen",
+    "duration": "Dauer",
+    "size": "Größe",
+    "watched_label": "Gesehen",
+    "not_watched": "Nicht gesehen",
+    "open_folder": "Ordner öffnen",
+    "scan": "Scannen",
+    "settings": "Einstellungen"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "language": "Sprache",
+    "video_directories": "Video-Verzeichnisse",
+    "add_directory": "Verzeichnis hinzufügen",
+    "remove": "Entfernen",
+    "tmdb_api_key": "TMDb API-Schlüssel",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "auto_clean": "Automatische Dateinamenbereinigung",
+    "min_film_duration": "Min. Filmdauer (Min)",
+    "max_series_duration": "Max. Seriendauer (Min)"
+  },
+  "errors": {
+    "no_video_mode": "Kein Video für diesen Modus verfügbar",
+    "no_resume": "Kein Video zum Fortsetzen",
+    "cannot_resume": "Video kann nicht fortgesetzt werden"
+  }
+}

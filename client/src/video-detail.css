@@ -1,0 +1,198 @@
+.modern-detail {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 1200px;
+  width: 95%;
+  max-height: 90vh;
+  background: linear-gradient(to bottom, #1a1a1a, #0d0d0d);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  padding: 0;
+  overflow: auto;
+  z-index: 1000;
+}
+
+.detail-hero {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 30px;
+  padding: 30px;
+  background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.9) 100%);
+}
+
+.detail-poster-wrapper {
+  position: relative;
+  aspect-ratio: 2/3;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.detail-poster-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.play-button-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
+}
+
+.play-button-overlay:hover {
+  opacity: 1;
+}
+
+.play-icon {
+  width: 80px;
+  height: 80px;
+  background: rgba(229, 9, 20, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  color: white;
+  transition: transform 0.2s ease;
+}
+
+.play-button-overlay:hover .play-icon {
+  transform: scale(1.1);
+}
+
+.detail-info-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detail-hero-title {
+  font-size: 2.5em;
+  margin: 0;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.detail-meta-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin: 15px 0 25px;
+}
+
+.meta-pill {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 1em;
+  color: #fff;
+  font-weight: 500;
+}
+
+.meta-pill.year {
+  background: #e50914;
+}
+
+.meta-pill.duration {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.meta-pill.genre {
+  background: rgba(229, 9, 20, 0.2);
+  border: 1px solid rgba(229, 9, 20, 0.3);
+}
+
+.detail-description {
+  font-size: 1.1em;
+  line-height: 1.6;
+  color: #ccc;
+  margin: 0;
+  max-width: 600px;
+}
+
+.detail-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 10;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.detail-close:hover {
+  opacity: 1;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.action-buttons button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.action-buttons button:hover {
+  transform: scale(1.05);
+}
+
+.action-buttons .primary-action {
+  background: #e50914;
+  color: white;
+}
+
+.action-buttons .primary-action:hover {
+  background: #f40612;
+}
+
+.action-buttons .secondary-action {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.action-buttons .secondary-action:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.action-buttons .icon {
+  font-size: 1.2em;
+}
+
+.detail-rating {
+  margin-top: 15px;
+  display: flex;
+  gap: 5px;
+}
+
+.star {
+  color: #555;
+  font-size: 24px;
+}
+
+.star.filled {
+  color: #ffd700;
+}

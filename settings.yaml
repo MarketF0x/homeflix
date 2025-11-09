@@ -1,0 +1,24 @@
+# Répertoires à scanner
+video_directories:
+  - "C:/Users/fparo/Videos"
+  - "D:/Films"
+  - "F:/Film 2"
+  - "H:/Film"
+  - "G:/Film"
+  - "I:/FILM"
+
+# Durées minimales/maximales pour filtrer films/séries
+min_film_minutes: 75      # >= 1h15 = film
+max_series_minutes: 55    # entre 20 et 55 min = série
+
+# Mode de session par défaut (mixed | films | series)
+session_mode: mixed
+
+# Clé API TMDb pour récupérer les affiches en ligne
+tmdb_api_key: "ea6fc0ab5f79a1f46933be60a01e0a17"
+
+# Nettoyage automatique des noms de fichiers (true/false)
+auto_clean_filenames: true
+
+# Langue de l'interface (fr/en/de/es)
+language: fr

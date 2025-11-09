@@ -1,0 +1,100 @@
+/* Style de la grille de vidéos */
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  padding: 20px 0;
+  width: 100%;
+}
+
+.video-grid.single {
+  grid-template-columns: 1fr;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.video-grid-item {
+  position: relative;
+  aspect-ratio: 2/3;
+  transition: transform 0.2s ease;
+}
+
+.video-grid-item:hover {
+  transform: scale(1.05);
+  z-index: 1;
+}
+
+/* Style pour la barre de progression */
+.list-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 4px 8px;
+  font-size: 0.8em;
+  text-align: center;
+}
+
+/* Style pour les boutons d'action */
+.header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.action-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.action-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Scrollbar personnalisée pour le contenu */
+.secondary-page-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.secondary-page-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.secondary-page-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.secondary-page-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .video-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+  }
+  
+  .secondary-page {
+    padding: 10px;
+  }
+  
+  .secondary-page-content {
+    padding: 10px;
+  }
+}
+
+/* Animation d'entrée pour la modale (utilise @keyframes fadeIn défini dans styles.css) */
+.secondary-page,
+.secondary-page-overlay {
+  animation: fadeIn 0.3s ease-out;
+}

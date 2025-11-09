@@ -1,0 +1,52 @@
+{
+  "nav": {
+    "all": "Tout",
+    "watched": "Déjà vus",
+    "to_resume": "Reprise",
+    "by_year": "Par année",
+    "by_genre": "Par genre",
+    "random": "🎲 Hasard"
+  },
+  "modes": {
+    "mixed": "🎬 Tous",
+    "films": "🎞️ Films",
+    "series": "📺 Séries"
+  },
+  "categories": {
+    "resume": "⏸ Reprendre la lecture",
+    "watched": "📺 Déjà vus",
+    "films_of": "📅 Films de",
+    "genre": "🎭"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "no_video": "Aucune vidéo disponible",
+    "close": "Fermer",
+    "play": "Lecture",
+    "duration": "Durée",
+    "size": "Taille",
+    "watched_label": "Vu",
+    "not_watched": "Non vu",
+    "open_folder": "Ouvrir le dossier",
+    "scan": "Scanner",
+    "settings": "Paramètres"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "language": "Langue",
+    "video_directories": "Répertoires vidéo",
+    "add_directory": "Ajouter un répertoire",
+    "remove": "Supprimer",
+    "tmdb_api_key": "Clé API TMDb",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "auto_clean": "Nettoyage automatique des noms",
+    "min_film_duration": "Durée minimale film (min)",
+    "max_series_duration": "Durée maximale série (min)"
+  },
+  "errors": {
+    "no_video_mode": "Aucune vidéo disponible pour ce mode",
+    "no_resume": "Aucune vidéo à reprendre",
+    "cannot_resume": "Impossible de reprendre la vidéo"
+  }
+}

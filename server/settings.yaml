@@ -1,0 +1,7 @@
+auto_clean_filenames: true
+language: en
+max_series_minutes: 55
+min_film_minutes: 75
+tmdb_api_key: VOTRE_CLE_API_ICI
+video_directories:
+- C:/NewPath
