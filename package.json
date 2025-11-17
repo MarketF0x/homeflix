@@ -1,0 +1,16 @@
+{
+  "name": "homeflix-root",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix client run dev",
+    "build:client": "npm --prefix client run build",
+    "dev:client": "npm --prefix client run dev",
+    "deploy:electron": "powershell -ExecutionPolicy Bypass -File scripts/deploy-client-electron.ps1",
+    "deploy:electron:norestart": "powershell -ExecutionPolicy Bypass -File scripts/deploy-client-electron.ps1 -NoRestart",
+    "deploy:electron:skipserver": "powershell -ExecutionPolicy Bypass -File scripts/deploy-client-electron.ps1 -SkipServerCopy",
+    "build:deploy": "powershell -ExecutionPolicy Bypass -File scripts/build-and-deploy.ps1",
+    "build:deploy:norestart": "powershell -ExecutionPolicy Bypass -File scripts/build-and-deploy.ps1 -NoRestart",
+    "build:deploy:skipserver": "powershell -ExecutionPolicy Bypass -File scripts/build-and-deploy.ps1 -SkipServerCopy"
+  },
+  "dependencies": {}
+}

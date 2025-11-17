@@ -1,0 +1,8 @@
+auto_clean_filenames: true
+language: fr
+max_series_minutes: 65
+min_film_minutes: 70
+session_mode: mixed
+tmdb_api_key: 'ea6fc0ab5f79a1f46933be60a01e0a17'
+video_directories: ['F:\Users\User\Documents', 'F:\Film 2', 'G:\Série', 'G:\Film',
+  'H:\Film', 'I:\FILM']

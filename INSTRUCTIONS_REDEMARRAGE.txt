@@ -1,0 +1,106 @@
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                       🔄 REDÉMARRAGE DU SERVEUR REQUIS                       ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  ⚠️  IMPORTANT : Tous les changements sont prêts MAIS le serveur Python      ║
+║      doit être redémarré pour les appliquer !                                ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  📝 ÉTAPES DE REDÉMARRAGE                                                    ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  1️⃣  ARRÊTER LE SERVEUR                                                      ║
+║      • Aller dans le terminal où tourne le serveur                           ║
+║      • Appuyer sur Ctrl+C                                                    ║
+║      • Attendre le message "Shutting down" ou "Stopped"                      ║
+║                                                                              ║
+║  2️⃣  REDÉMARRER LE SERVEUR                                                   ║
+║      Option A - Avec le script de démarrage :                                ║
+║        cd c:\Users\fparo\Desktop\homeflix                                    ║
+║        .\start.ps1                                                           ║
+║                                                                              ║
+║      Option B - Directement :                                                ║
+║        cd c:\Users\fparo\Desktop\homeflix\server                             ║
+║        python main.py                                                        ║
+║                                                                              ║
+║  3️⃣  VÉRIFIER QUE LE NOUVEAU CODE EST ACTIF                                 ║
+║      Dans un autre terminal :                                                ║
+║        cd c:\Users\fparo\Desktop\homeflix\server                             ║
+║        python test_endpoint_quick.py                                         ║
+║                                                                              ║
+║      ✅ Vous devez voir : "Status: 200" et "SUCCESS"                         ║
+║      ❌ Si "404" : Le serveur n'a pas redémarré correctement                 ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  🎬 TESTER LA FONCTIONNALITÉ                                                 ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  1. Ouvrir http://localhost:8000 dans le navigateur                          ║
+║  2. Ouvrir la Console (F12 > Console)                                        ║
+║  3. Vérifier : "✅ Profil principal chargé automatiquement: Principal"       ║
+║  4. Lancer une vidéo                                                         ║
+║  5. Regarder pendant 30 secondes minimum                                     ║
+║  6. Vérifier dans la Console toutes les 5 secondes :                         ║
+║     💾 Sauvegarde progression: vidéo X, position Ys, profil 1                ║
+║     ✅ Progression sauvegardée                                               ║
+║  7. Fermer la vidéo                                                          ║
+║  8. Vérifier la section "À reprendre" sous le carrousel                      ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  📊 COMPORTEMENT ATTENDU DE "À REPRENDRE"                                    ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  ✅ Maximum 10 vidéos affichées                                              ║
+║  ✅ Les plus récemment visionnées apparaissent À GAUCHE                      ║
+║  ✅ Les plus anciennes disparaissent automatiquement                         ║
+║  ✅ L'ordre est préservé (récent → ancien, de gauche à droite)               ║
+║                                                                              ║
+║  Exemple après avoir regardé 15 films :                                      ║
+║                                                                              ║
+║    [Film 15] [Film 14] [Film 13] ... [Film 7] [Film 6]                      ║
+║     ↑ Plus récent                            ↑ Plus ancien                   ║
+║                                                                              ║
+║    Films 1 à 5 : Supprimés automatiquement (trop anciens)                    ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  ✅ MODIFICATIONS APPLIQUÉES                                                 ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  Backend (server/api/videos.py) :                                            ║
+║    • Sauvegarde de progression par profil                                    ║
+║    • Limite automatique à 10 vidéos (supprime les plus anciennes)            ║
+║    • Compatible avec système sans table videos (scan dynamique)              ║
+║                                                                              ║
+║  Backend (server/main.py) :                                                  ║
+║    • Liste "À reprendre" triée par date (plus récent en premier)             ║
+║    • Ordre préservé de la base de données                                    ║
+║                                                                              ║
+║  Frontend (client/src/App.jsx) :                                             ║
+║    • Auto-sélection du profil principal au démarrage                         ║
+║    • Build ✅ terminé                                                        ║
+║                                                                              ║
+║  Frontend (client/src/VideoPlayer.jsx) :                                     ║
+║    • Sauvegarde toutes les 5 secondes + à la fermeture                       ║
+║    • Logs de debug pour traçabilité                                          ║
+║    • Build ✅ terminé                                                        ║
+║                                                                              ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  🐛 DÉPANNAGE                                                                ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  Problème : "⚠️ Aucun profil sélectionné"                                   ║
+║    → Rafraîchir la page (Ctrl+F5)                                            ║
+║                                                                              ║
+║  Problème : "❌ Erreur serveur: 404"                                         ║
+║    → Le serveur n'a pas été redémarré                                        ║
+║                                                                              ║
+║  Problème : La liste ne se met pas à jour                                    ║
+║    → Vérifier python test_endpoint_quick.py (doit montrer SUCCESS)           ║
+║    → Vérifier python check_watch_status.py (doit montrer des entrées)        ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+
+Lancez la commande suivante pour tester si le serveur est prêt :
+  python c:\Users\fparo\Desktop\homeflix\server\test_endpoint_quick.py
+
+Si vous voyez "404", redémarrez le serveur !
