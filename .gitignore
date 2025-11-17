@@ -8,6 +8,11 @@ env/
 venv/
 .venv/
 .venv310/
+
+# Credentials (IMPORTANT!)
+.git-credentials-temp.txt
+*.credentials
+.env.local
 ENV/
 build/
 develop-eggs/
