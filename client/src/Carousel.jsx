@@ -1,5 +1,6 @@
 import { useState, useEffect, memo } from "react";
 import { thumbURL } from "./api";
+import "./carousel.css";
 
 function Carousel({ videos, onSelect, cacheKey = 0 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -83,13 +84,12 @@ function Carousel({ videos, onSelect, cacheKey = 0 }) {
           />
           <div className="carousel-overlay">
             <h2 className="carousel-title">{currentVideo.title}</h2>
-            <div className="carousel-metadata">
-              {currentVideo.year && <span className="carousel-year">{currentVideo.year}</span>}
-              {currentVideo.genre && <span className="carousel-genre">{currentVideo.genre}</span>}
-            </div>
-            <button className="carousel-play-btn" onClick={(e) => { e.stopPropagation(); onSelect(currentVideo); }}>
-              ▶ Lire
-            </button>
+            {!currentVideo.has_manual_poster && (
+              <div className="carousel-metadata">
+                {currentVideo.year && <span className="carousel-year">{currentVideo.year}</span>}
+                {currentVideo.genre && <span className="carousel-genre">{currentVideo.genre}</span>}
+              </div>
+            )}
           </div>
         </div>
 

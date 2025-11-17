@@ -1,0 +1,207 @@
+/* ================================================
+   KEYBOARD FOCUS INDICATORS
+   Indicateurs visuels pour la navigation clavier
+   ================================================ */
+
+/* Focus visible général */
+:focus-visible {
+  outline: 2px solid var(--color-primary, #e50914);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Boutons */
+button:focus-visible,
+.button:focus-visible {
+  outline: 2px solid var(--color-primary, #e50914);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(229, 9, 20, 0.2);
+}
+
+/* Cartes vidéo */
+.video-card:focus-visible {
+  outline: 3px solid var(--color-primary, #e50914);
+  outline-offset: 2px;
+  transform: scale(1.05);
+  z-index: 10;
+  box-shadow: 
+    0 0 0 4px rgba(229, 9, 20, 0.3),
+    0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* Carousel items */
+.carousel-item:focus-visible {
+  outline: 3px solid var(--color-primary, #e50914);
+  outline-offset: 2px;
+}
+
+/* Inputs */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--color-primary, #e50914);
+  outline-offset: 1px;
+  box-shadow: 0 0 0 4px rgba(229, 9, 20, 0.15);
+}
+
+/* Links */
+a:focus-visible {
+  outline: 2px solid var(--color-primary, #e50914);
+  outline-offset: 2px;
+  text-decoration: underline;
+}
+
+/* Profile cards */
+.profile-card:focus-visible {
+  outline: 3px solid var(--color-primary, #e50914);
+  outline-offset: 4px;
+  transform: scale(1.1);
+  box-shadow: 0 0 0 6px rgba(229, 9, 20, 0.2);
+}
+
+/* Modal close buttons */
+.close-button:focus-visible,
+.modal-close:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Navigation links */
+nav a:focus-visible,
+.nav-link:focus-visible {
+  outline: 2px solid var(--color-primary, #e50914);
+  outline-offset: 4px;
+  background: rgba(229, 9, 20, 0.1);
+}
+
+/* Scrollable containers */
+.scrollable-row:focus-within {
+  outline: 1px solid rgba(229, 9, 20, 0.3);
+  outline-offset: 4px;
+}
+
+/* Tab navigation */
+[role="tab"]:focus-visible {
+  outline: 2px solid var(--color-primary, #e50914);
+  outline-offset: 2px;
+  background: rgba(229, 9, 20, 0.1);
+}
+
+/* Keyboard hint indicators */
+.keyboard-hint {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: monospace;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  z-index: 100;
+}
+
+*:focus-visible .keyboard-hint {
+  opacity: 1;
+}
+
+/* Skip to content link */
+.skip-to-content {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background: var(--color-primary, #e50914);
+  color: #fff;
+  padding: 12px 24px;
+  text-decoration: none;
+  z-index: 10000;
+  transition: top 0.2s;
+}
+
+.skip-to-content:focus {
+  top: 0;
+}
+
+/* Focus trap indicator (modals) */
+.focus-trap:focus-within {
+  box-shadow: inset 0 0 0 2px rgba(229, 9, 20, 0.2);
+}
+
+/* Custom scrollbar focus */
+.scrollable-row:focus-within::-webkit-scrollbar-thumb {
+  background: var(--color-primary, #e50914);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :focus-visible {
+    outline-width: 3px;
+    outline-offset: 3px;
+  }
+  
+  button:focus-visible,
+  .video-card:focus-visible {
+    outline-width: 4px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .video-card:focus-visible,
+  .profile-card:focus-visible {
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  :focus-visible {
+    outline-color: #ff4444;
+  }
+  
+  button:focus-visible {
+    box-shadow: 0 0 0 4px rgba(255, 68, 68, 0.3);
+  }
+}
+
+/* Light mode adjustments */
+@media (prefers-color-scheme: light) {
+  :focus-visible {
+    outline-color: #c00;
+  }
+  
+  .modal-close:focus-visible {
+    outline-color: #000;
+  }
+}
+
+/* Tabindex -1 (programmatic focus) */
+[tabindex="-1"]:focus {
+  outline: none;
+}
+
+/* Focus within containers */
+.container:focus-within {
+  /* Subtle glow effect */
+  box-shadow: 0 0 20px rgba(229, 9, 20, 0.1);
+}
+
+/* Keyboard navigation active state */
+body.keyboard-nav :focus {
+  outline-width: 3px;
+}
+
+body.keyboard-nav button:focus,
+body.keyboard-nav .video-card:focus {
+  outline-width: 4px;
+}
+
+/* Hide focus for mouse users */
+body:not(.keyboard-nav) *:focus:not(:focus-visible) {
+  outline: none;
+}

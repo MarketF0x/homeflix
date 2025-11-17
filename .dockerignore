@@ -1,0 +1,57 @@
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info
+dist
+build
+.venv*
+venv
+env
+
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+.npm
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+*.log
+*.log.*
+homeflix.log*
+.pytest_cache
+.coverage
+
+# Dev files
+tests/
+docs/
+scripts/cleanup*.ps1
+scripts/watch-servers.ps1
+
+# Data (sera monté en volume)
+data/
+server/homeflix.db
+server/homeflix.db-*
+cache/
+
+# Build artifacts
+client/dist
+client/node_modules
+electron/
+
+# Git
+.git
+.gitignore

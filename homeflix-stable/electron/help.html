@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Aide Homeflix</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+  body { font-family: system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:#111; color:#eee; margin:0; padding:2rem; line-height:1.5; }
+  h1 { margin-top:0; font-size:1.8rem; }
+  h2 { margin-top:2rem; font-size:1.3rem; border-bottom:1px solid #333; padding-bottom:.25rem; }
+  a { color:#5ab4ff; }
+  code { background:#222; padding:.2rem .4rem; border-radius:4px; font-size:.9rem; }
+  ul { padding-left:1.2rem; }
+  .tip { background:#1e2a38; border-left:4px solid #3d7cff; padding:.75rem 1rem; margin:1rem 0; border-radius:4px; }
+  .warn { background:#3a1e1e; border-left:4px solid #ff5d5d; }
+</style>
+</head>
+<body>
+  <h1>Guide d'utilisation Homeflix</h1>
+  <p>Bienvenue dans Homeflix. Ce guide local résume l'essentiel pour naviguer et résoudre les petits problèmes courants sans accès Internet.</p>
+
+  <h2>Barre supérieure & Navigation</h2>
+  <ul>
+    <li>La barre personnalisée apparaît quand la souris effleure le haut de la fenêtre ou avec la touche <code>Alt</code>.</li>
+    <li>Les actions disponibles : Actualiser, Forcer l'actualisation (ignore le cache), Zoom ±, Réinitialiser zoom, Quitter.</li>
+    <li>La fenêtre est frameless et maximisée pour simuler le plein écran sans utiliser F11.</li>
+  </ul>
+
+  <h2>Lecture Vidéo</h2>
+  <ul>
+    <li>La progression est sauvegardée automatiquement; reprendre une vidéo recharge votre dernier point.</li>
+    <li>Les sous-titres peuvent être activés/désactivés dans le lecteur s'ils sont disponibles.</li>
+    <li>En cas de blocage visuel, utilisez d'abord <em>Actualiser</em> puis <em>Forcer l'actualisation</em>.</li>
+  </ul>
+
+  <h2>Performances & Fiabilité</h2>
+  <ul>
+    <li>Le serveur redémarre automatiquement si un problème est détecté (auto-heal).</li>
+    <li>En cas de crash GPU répété, Homeflix bascule sur un mode logiciel pour rester stable.</li>
+  </ul>
+
+  <h2>Raccourcis utiles</h2>
+  <ul>
+    <li><code>Ctrl/Cmd + R</code> : Actualiser.</li>
+    <li><code>Ctrl/Cmd + Shift + R</code> : Forcer l'actualisation.</li>
+    <li><code>Ctrl/Cmd + +</code> / <code>Ctrl/Cmd + -</code> : Zoom avant / arrière.</li>
+    <li><code>Ctrl/Cmd + 0</code> : Réinitialiser le zoom.</li>
+    <li><code>Alt</code> : Afficher temporairement la barre si cachée.</li>
+  </ul>
+
+  <h2>Dépannage rapide</h2>
+  <div class="tip">
+    <strong>Image figée ou liste vide ?</strong><br />Essayez : Actualiser → Forcer l'actualisation → Redémarrer l'application si le problème persiste.
+  </div>
+  <div class="tip warn">
+    <strong>Redémarrages fréquents</strong><br />Si l'application se relance plusieurs fois en moins de 5 minutes, notez l'heure et redémarrez le système pour réinitialiser l'environnement GPU / réseau.
+  </div>
+
+  <h2>Confidentialité</h2>
+  <p>Aucune donnée n'est envoyée vers un service externe tant que vous n'ouvrez pas un lien externe (documentation, sources). Tout reste en local.</p>
+
+  <h2>Limitations</h2>
+  <ul>
+    <li>Pas d'accès aux outils de développement (DevTools) pour garantir une interface épurée.</li>
+    <li>Le plein écran natif (F11) est désactivé; le mode maximisé frameless offre déjà une immersion quasi totale.</li>
+  </ul>
+
+  <h2>Support</h2>
+  <p>Ce guide est hors-ligne. Pour une aide avancée, ouvrez la documentation complète quand Internet est disponible.</p>
+
+  <p style="margin-top:3rem;font-size:.85rem;opacity:.6">© 2025 Homeflix – Guide local</p>
+</body>
+</html>

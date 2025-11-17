@@ -1,0 +1,1071 @@
+/* Overlay de fond pour la fenêtre modale - UTILISE LE SYSTÈME UNIFIÉ */
+.detail-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: flex-start; /* En haut, pas centré */
+  justify-content: center;
+  z-index: 9998;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 0;
+  overflow-y: auto; /* Scroll sur l'overlay */
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch; /* Smooth scroll sur iOS */
+  
+  /* Optimisations GPU */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: opacity;
+  
+  /* Animation */
+  animation: overlayFadeIn 0.3s ease-out;
+}
+
+.detail-container {
+  position: relative;
+  background: #1a1a1a;
+  border-radius: 12px;
+  max-width: 1200px;
+  width: 95%;
+  margin-bottom: 40px; /* Espace en bas pour scroll */
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  min-height: 600px;
+  
+  /* Optimisations */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.modern-detail {
+  background: linear-gradient(to bottom, #1a1a1a, #0d0d0d);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  padding: 0;
+  overflow: hidden;
+  /* Optimisation du rendu */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.detail-hero {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 30px;
+  padding: 30px;
+  background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.9) 100%);
+  /* Hauteur minimale pour éviter le décalage */
+  min-height: 450px;
+}
+
+.detail-poster-wrapper {
+  position: relative;
+  aspect-ratio: 2/3;
+  border-radius: 8px;
+  overflow: hidden;
+  /* Réserver l'espace immédiatement */
+  width: 300px;
+  max-width: 300px;
+  height: auto;
+  background: #2a2a2a;
+}
+
+.detail-poster-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  /* Accélérer le rendu de l'image */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+.play-button-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  cursor: pointer;
+}
+
+.play-button-overlay:hover {
+  opacity: 1;
+}
+
+.play-icon {
+  width: 80px;
+  height: 80px;
+  background: rgba(229, 9, 20, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  color: white;
+  transition: transform 0.2s ease;
+}
+
+.play-button-overlay:hover .play-icon {
+  transform: scale(1.1);
+}
+
+.detail-info-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detail-hero-title {
+  font-size: 2.5em;
+  margin: 0;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.detail-meta-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin: 15px 0 25px;
+}
+
+.meta-pill {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 1em;
+  color: #fff;
+  font-weight: 500;
+}
+
+.meta-pill.year {
+  background: #e50914;
+}
+
+.meta-pill.duration {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.meta-pill.genre {
+  background: rgba(229, 9, 20, 0.2);
+  border: 1px solid rgba(229, 9, 20, 0.3);
+}
+
+.detail-description {
+  font-size: 1.1em;
+  line-height: 1.6;
+  color: #ccc;
+  margin: 0;
+  max-width: 600px;
+}
+
+.detail-cast {
+  font-size: 1em;
+  line-height: 1.5;
+  color: #aaa;
+  margin-top: 15px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  border-left: 3px solid #e50914;
+}
+
+.detail-cast strong {
+  color: #fff;
+  margin-right: 8px;
+}
+
+.detail-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 10;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.detail-close:hover {
+  opacity: 1;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+.action-buttons button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.action-buttons button:hover {
+  transform: scale(1.05);
+}
+
+.action-buttons .primary-action {
+  background: #e50914;
+  color: white;
+}
+
+.action-buttons .primary-action:hover {
+  background: #f40612;
+}
+
+.action-buttons .secondary-action {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.action-buttons .secondary-action:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.action-buttons .icon {
+  font-size: 1.2em;
+}
+
+.detail-rating {
+  margin-top: 15px;
+  display: flex;
+  gap: 5px;
+}
+
+.star {
+  color: #555;
+  font-size: 24px;
+}
+
+.star.filled {
+  color: #ffd700;
+}
+
+.detail-file-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #999;
+  font-size: 0.95em;
+  margin: 10px 0;
+}
+
+.file-icon {
+  font-size: 1.2em;
+}
+
+.detail-action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 20px 0;
+}
+
+/* Bouton de lecture avec style SVG en grand rectangle (copié depuis grid.css .action-button) */
+.detail-play-button {
+  background: linear-gradient(135deg, rgba(229, 9, 20, 0.15) 0%, rgba(139, 0, 0, 0.15) 100%);
+  border: 1px solid rgba(229, 9, 20, 0.3);
+  color: white;
+  width: 100%;
+  max-width: 400px;
+  height: 90px;
+  padding: 15px 40px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 1.3rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.detail-play-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.detail-play-button:hover::before {
+  left: 100%;
+}
+
+.detail-play-button:hover {
+  background: linear-gradient(135deg, rgba(229, 9, 20, 0.3) 0%, rgba(139, 0, 0, 0.3) 100%);
+  border-color: rgba(229, 9, 20, 0.6);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(229, 9, 20, 0.4);
+}
+
+.detail-play-button:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(229, 9, 20, 0.3);
+}
+
+.detail-play-button svg {
+  width: 32px;
+  height: 32px;
+  fill: white;
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+}
+
+.action-btn-primary,
+.action-btn-secondary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn-primary {
+  background: #e50914;
+  color: white;
+}
+
+.action-btn-primary:hover {
+  background: #f40612;
+  transform: scale(1.05);
+}
+
+.action-btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.action-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+.btn-icon {
+  font-size: 1.2em;
+}
+
+.detail-file-path {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  margin-top: 15px;
+  overflow: hidden;
+}
+
+.path-icon {
+  font-size: 1.1em;
+  color: #999;
+}
+
+.path-text {
+  font-size: 0.85em;
+  color: #666;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+  .detail-overlay {
+    padding-top: 0;
+    align-items: flex-start;
+  }
+  
+  .detail-container {
+    width: 100%;
+    margin-bottom: 0;
+    border-radius: 0;
+    min-height: 100vh;
+  }
+
+  .detail-hero {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 20px 15px;
+    min-height: auto;
+  }
+
+  .detail-poster-wrapper {
+    max-width: 160px; /* Plus petit sur mobile */
+    width: 100%;
+    height: auto;
+    aspect-ratio: 2/3;
+    margin: 0 auto;
+  }
+  
+  /* Afficher le bouton play sur mobile */
+  .play-button-overlay {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.5);
+  }
+  
+  .play-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+  }
+
+  .detail-hero-title {
+    font-size: 1.5em;
+    text-align: center;
+  }
+
+  .detail-action-buttons {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .detail-info-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 15px;
+  }
+  
+  .detail-section {
+    padding: 15px;
+  }
+  
+  .detail-section-title {
+    font-size: 1.2em;
+  }
+  
+  /* Boutons d'action plus petits sur mobile */
+  .detail-play-button,
+  .detail-resume-button,
+  .detail-action-btn {
+    min-width: 100%;
+    padding: 12px 20px;
+    font-size: 0.9rem;
+    height: 60px;
+  }
+  
+  /* Metadata edit responsive */
+  .metadata-edit-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .save-metadata-btn,
+  .tmdb-enrich-btn,
+  .cancel-metadata-btn {
+    min-width: 100%;
+    width: 100%;
+  }
+  
+  .meta-pill {
+    font-size: 0.85em;
+    padding: 6px 12px;
+  }
+  
+  .detail-description {
+    font-size: 1em;
+  }
+  
+  .detail-close {
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+/* Titre �ditable */
+.detail-hero-title.editable {
+  cursor: pointer;
+  position: relative;
+  padding-right: 40px;
+  transition: color 0.2s ease;
+}
+
+.detail-hero-title.editable:hover {
+  color: #e50914;
+}
+
+.edit-icon {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.5em;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.detail-hero-title.editable:hover .edit-icon {
+  opacity: 1;
+}
+
+/* �dition des m�tadonn�es */
+.detail-title-edit {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.detail-title-input {
+  flex: 1;
+  padding: 12px 16px;
+  font-size: 2em;
+  font-weight: bold;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid #e50914;
+  border-radius: 6px;
+  color: white;
+  outline: none;
+}
+
+/* Anciens styles .save-metadata-btn et .cancel-metadata-btn supprimés - voir les nouveaux styles unifiés plus bas avec .metadata-edit-buttons */
+
+/* Boutons de recherche d'affiche - Style premium rouge Netflix */
+.search-poster-btn,
+.inline-search-btn {
+  background: linear-gradient(135deg, rgba(229, 9, 20, 0.15) 0%, rgba(139, 0, 0, 0.15) 100%);
+  border: 1px solid rgba(229, 9, 20, 0.3);
+  color: white;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transform: translateY(0) scale(1);
+}
+
+/* Effet de brillance au survol */
+.search-poster-btn::before,
+.inline-search-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease-out;
+  pointer-events: none;
+}
+
+.search-poster-btn:hover::before,
+.inline-search-btn:hover::before {
+  left: 100%;
+}
+
+/* Reset de l'effet après survol */
+.search-poster-btn:not(:hover)::before,
+.inline-search-btn:not(:hover)::before {
+  left: -100%;
+  transition: none;
+}
+
+/* Taille pour le grand bouton "Chercher" */
+.search-poster-btn {
+  padding: 8px 16px;
+  font-size: 0.95em;
+  min-width: 120px;
+  height: 45px;
+}
+
+.search-poster-btn:hover {
+  background: linear-gradient(135deg, rgba(229, 9, 20, 0.3) 0%, rgba(139, 0, 0, 0.3) 100%);
+  border-color: rgba(229, 9, 20, 0.6);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(229, 9, 20, 0.4);
+}
+
+.search-poster-btn:not(:hover) {
+  transform: translateY(0) scale(1);
+}
+
+.search-poster-btn:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Taille pour le bouton "Récentes" */
+.inline-search-btn {
+  padding: 8px 16px;
+  font-size: 0.9em;
+  min-width: 110px;
+  height: 45px;
+}
+
+/* Couleur rouge pour le bouton Récentes */
+.recent-posters-btn {
+  background: linear-gradient(135deg, rgba(229, 9, 20, 0.15) 0%, rgba(139, 0, 0, 0.15) 100%) !important;
+  border-color: rgba(229, 9, 20, 0.3) !important;
+}
+
+.recent-posters-btn:hover {
+  background: linear-gradient(135deg, rgba(229, 9, 20, 0.3) 0%, rgba(139, 0, 0, 0.3) 100%) !important;
+  border-color: rgba(229, 9, 20, 0.6) !important;
+  box-shadow: 0 8px 20px rgba(229, 9, 20, 0.4) !important;
+}
+
+.inline-search-btn:hover {
+  background: linear-gradient(135deg, rgba(229, 9, 20, 0.3) 0%, rgba(139, 0, 0, 0.3) 100%);
+  border-color: rgba(229, 9, 20, 0.6);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(229, 9, 20, 0.4);
+}
+
+.inline-search-btn:not(:hover) {
+  transform: translateY(0) scale(1);
+}
+
+.inline-search-btn:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Anciens styles .cancel-metadata-btn supprimés - voir les nouveaux styles plus bas */
+
+/* Formulaire d'édition des métadonnées complet */
+.detail-metadata-edit {
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(229, 9, 20, 0.3);
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+  max-height: 70vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Scrollbar personnalisée pour le formulaire */
+.detail-metadata-edit::-webkit-scrollbar {
+  width: 8px;
+}
+
+.detail-metadata-edit::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+}
+
+.detail-metadata-edit::-webkit-scrollbar-thumb {
+  background: rgba(229, 9, 20, 0.5);
+  border-radius: 10px;
+}
+
+.detail-metadata-edit::-webkit-scrollbar-thumb:hover {
+  background: rgba(229, 9, 20, 0.7);
+}
+
+.metadata-label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 15px;
+  color: #fff;
+  font-size: 0.95em;
+  font-weight: 500;
+}
+
+.metadata-input,
+.metadata-textarea {
+  padding: 12px 16px;
+  font-size: 1em;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: white;
+  outline: none;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.metadata-input:focus,
+.metadata-textarea:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #e50914;
+  box-shadow: 0 0 0 2px rgba(229, 9, 20, 0.2);
+}
+
+.metadata-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.metadata-edit-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Style unifié pour les boutons de métadonnées (même style que detail-play-button) */
+.save-metadata-btn,
+.tmdb-enrich-btn,
+.cancel-metadata-btn {
+  background: linear-gradient(135deg, rgba(229, 9, 20, 0.15) 0%, rgba(139, 0, 0, 0.15) 100%);
+  border: 1px solid rgba(229, 9, 20, 0.3);
+  color: white;
+  min-width: 150px;
+  height: 45px;
+  padding: 10px 24px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+/* Effet de brillance au survol */
+.save-metadata-btn::before,
+.tmdb-enrich-btn::before,
+.cancel-metadata-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.save-metadata-btn:hover::before,
+.tmdb-enrich-btn:hover::before,
+.cancel-metadata-btn:hover::before {
+  left: 100%;
+}
+
+/* Bouton Sauvegarder - Rouge */
+.save-metadata-btn {
+  background: linear-gradient(135deg, rgba(229, 9, 20, 0.15) 0%, rgba(139, 0, 0, 0.15) 100%);
+  border-color: rgba(229, 9, 20, 0.3);
+}
+
+.save-metadata-btn:hover {
+  background: linear-gradient(135deg, rgba(229, 9, 20, 0.3) 0%, rgba(139, 0, 0, 0.3) 100%);
+  border-color: rgba(229, 9, 20, 0.6);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(229, 9, 20, 0.4);
+}
+
+/* Bouton TMDb - Rouge */
+.tmdb-enrich-btn {
+  background: linear-gradient(135deg, rgba(229, 9, 20, 0.15) 0%, rgba(139, 0, 0, 0.15) 100%);
+  border-color: rgba(229, 9, 20, 0.3);
+}
+
+.tmdb-enrich-btn:hover {
+  background: linear-gradient(135deg, rgba(229, 9, 20, 0.3) 0%, rgba(139, 0, 0, 0.3) 100%);
+  border-color: rgba(229, 9, 20, 0.6);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(229, 9, 20, 0.4);
+}
+
+/* Bouton Annuler - Gris (pour différenciation) */
+.cancel-metadata-btn {
+  background: linear-gradient(135deg, rgba(108, 117, 125, 0.15) 0%, rgba(73, 80, 87, 0.15) 100%);
+  border-color: rgba(108, 117, 125, 0.3);
+}
+
+.cancel-metadata-btn:hover {
+  background: linear-gradient(135deg, rgba(108, 117, 125, 0.3) 0%, rgba(73, 80, 87, 0.3) 100%);
+  border-color: rgba(108, 117, 125, 0.6);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(108, 117, 125, 0.4);
+}
+
+/* Effet au clic */
+.save-metadata-btn:active,
+.tmdb-enrich-btn:active,
+.cancel-metadata-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.save-message {
+  padding: 10px 15px;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: 600;
+  margin-top: 15px;
+}
+
+.save-message.success {
+  background: rgba(40, 167, 69, 0.2);
+  border: 1px solid #28a745;
+  color: #28a745;
+}
+
+.save-message.error {
+  background: rgba(220, 53, 69, 0.2);
+  border: 1px solid #dc3545;
+  color: #dc3545;
+}
+
+/* Bouton de suppression */
+.action-btn-delete {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 1.1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(220, 53, 69, 0.8);
+  color: white;
+}
+
+.action-btn-delete:hover {
+  background: #dc3545;
+  transform: scale(1.05);
+}
+
+/* Confirmation de suppression inline */
+.delete-confirm-inline {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px 20px;
+  background: rgba(220, 53, 69, 0.2);
+  border: 2px solid #dc3545;
+  border-radius: 6px;
+}
+
+.delete-confirm-inline span {
+  color: #fff;
+  font-weight: 600;
+}
+
+.confirm-yes,
+.confirm-no {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.confirm-yes {
+  background: #dc3545;
+  color: white;
+}
+
+.confirm-yes:hover {
+  background: #c82333;
+  transform: scale(1.05);
+}
+
+.confirm-no {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+.confirm-no:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+}
+
+/* Bouton de suppression sur la jaquette (comme VideoCard) */
+.delete-btn-detail {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(220, 38, 38, 0.9);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  opacity: 0;
+  backdrop-filter: blur(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  z-index: 10;
+}
+
+.detail-poster-container:hover .delete-btn-detail {
+  opacity: 1;
+}
+
+.delete-btn-detail:hover {
+  background: rgba(239, 68, 68, 1);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.6);
+}
+
+.delete-btn-detail:active {
+  transform: scale(0.95);
+}
+
+/* Overlay de confirmation de suppression sur la jaquette */
+.detail-poster-container {
+  position: relative;
+}
+
+.detail-poster-container .delete-confirm-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  animation: fadeIn 0.2s ease;
+  border-radius: 8px;
+}
+
+.detail-poster-container .delete-confirm-box {
+  background: rgba(30, 30, 40, 0.98);
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detail-poster-container .delete-confirm-box p {
+  margin: 0 0 16px 0;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.detail-poster-container .delete-confirm-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.detail-poster-container .delete-confirm-yes,
+.detail-poster-container .delete-confirm-no {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 80px;
+}
+
+.detail-poster-container .delete-confirm-yes {
+  background: #dc2626;
+  color: white;
+}
+
+.detail-poster-container .delete-confirm-yes:hover {
+  background: #ef4444;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+}
+
+.detail-poster-container .delete-confirm-no {
+  background: #374151;
+  color: white;
+}
+
+.detail-poster-container .delete-confirm-no:hover {
+  background: #4b5563;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(55, 65, 81, 0.4);
+}
+
+/* Styles pour la prévisualisation de l'affiche */
+.poster-preview-container {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.poster-preview-label {
+  color: #e50914;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+
+.poster-preview-image {
+  max-width: 200px;
+  max-height: 300px;
+  border-radius: 8px;
+  border: 2px solid #e50914;
+  box-shadow: 0 4px 8px rgba(229, 9, 20, 0.3);
+}
+
+/* Responsive pour mobile - prévisualisation plus petite */
+@media (max-width: 768px) {
+  .poster-preview-image {
+    max-width: 120px;
+    max-height: 180px;
+  }
+  
+  .poster-preview-label {
+    font-size: 0.9em;
+  }
+}

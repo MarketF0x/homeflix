@@ -1,0 +1,44 @@
+/* ================================================
+   PAGES - COLLECTIONS
+   Page de collections et filtres
+   ================================================ */
+
+.collections-page {
+  padding: 32px 24px;
+}
+
+.collections-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.collections-filters {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 24px;
+}
+
+@media (max-width: 768px) {
+  .collections-page {
+    padding: 16px;
+  }
+  
+  .collections-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  
+  .collection-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 16px;
+  }
+}

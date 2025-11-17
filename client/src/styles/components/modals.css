@@ -1,0 +1,286 @@
+/* ============================================
+   STYLES POUR TOUS LES MODALS - SYSTÈME UNIFIÉ
+   ============================================ */
+
+/* Container principal du modal - UTILISE LE SYSTÈME UNIFIÉ */
+.modal-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 5000;
+  display: flex;
+  align-items: flex-start; /* En haut, pas centré */
+  justify-content: center;
+  padding: 0;
+  overflow-y: auto; /* Scroll sur le container */
+  overflow-x: hidden;
+  
+  /* Optimisations GPU */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  will-change: opacity;
+}
+
+/* Overlay sombre derrière le modal */
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.95);
+  z-index: 5000;
+  cursor: pointer;
+  will-change: opacity;
+}
+
+/* Contenu du modal */
+.modal-content {
+  position: relative;
+  z-index: 5001;
+  background-color: #000000;
+  border-radius: 12px;
+  width: 90vw;
+  max-width: 1400px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  margin-bottom: 40px; /* Espace en bas pour scroll */
+  
+  /* Optimisations GPU */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  
+  /* Animation */
+  animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Variante large pour Collections */
+.modal-content.modal-large {
+  width: 95vw;
+  max-width: 1600px;
+  max-height: 90vh;
+}
+
+/* Boutons de modal - STYLE PREMIUM */
+.modal-button-primary,
+.modal-button-secondary {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-button-primary {
+  background: linear-gradient(135deg, #e50914 0%, #b20710 100%);
+  color: white;
+}
+
+.modal-button-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.modal-button-primary:hover::before {
+  left: 100%;
+}
+
+.modal-button-primary:hover {
+  background: linear-gradient(135deg, #f6121d 0%, #c9080f 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(229, 9, 20, 0.4);
+}
+
+.modal-button-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(229, 9, 20, 0.3);
+}
+
+.modal-button-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.modal-button-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Header du modal */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  border-bottom: 1px solid #333;
+  background-color: #000000;
+  flex-shrink: 0;
+}
+
+/* Titre du modal */
+.modal-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* Bouton fermer */
+.modal-close-button {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #fff;
+  cursor: pointer;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.modal-close-button:hover {
+  background-color: #333;
+}
+
+/* Zone scrollable du modal */
+.modal-scrollable {
+  overflow-y: auto;
+  padding: 30px;
+  flex: 1;
+}
+
+/* Grille de vidéos */
+.modal-video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+/* Message de chargement */
+.modal-loading {
+  padding: 40px;
+  text-align: center;
+  color: #fff;
+}
+
+/* Message vide */
+.modal-empty {
+  padding: 40px;
+  text-align: center;
+  color: #999;
+}
+
+/* ============================================
+   STYLES SPÉCIFIQUES COLLECTIONS
+   ============================================ */
+
+/* Grille de cartes de collections */
+.collections-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+/* Carte de collection */
+.collection-card {
+  background-color: #222;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.collection-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 20px rgba(229, 9, 20, 0.3);
+}
+
+/* Header de la carte collection */
+.collection-card-header {
+  padding: 15px;
+  background-color: #000000;
+  border-bottom: 1px solid #333;
+}
+
+.collection-card-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.collection-card-count {
+  font-size: 12px;
+  color: #999;
+  margin-top: 4px;
+}
+
+/* Grille de vignettes dans la carte */
+.collection-thumbnails {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 4px;
+  background-color: #000;
+}
+
+.collection-thumbnail {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2/3;
+  object-fit: cover;
+  background-color: #333;
+  display: block;
+}
+
+/* Bouton retour pour vue détaillée */
+.modal-back-button {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.modal-back-button:hover {
+  background-color: #333;
+}
+
+/* Header avec bouton retour */
+.modal-header-with-back {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+/* Fichier modal.css - Styles déplacés dans styles.css pour centralisation */
+/* Ce fichier est conservé pour compatibilité mais ne contient plus de styles actifs */
+
+/* Les styles .secondary-page, .secondary-page-overlay, .secondary-page-content 
+   et .secondary-page-header sont maintenant définis dans styles.css */

@@ -25,6 +25,11 @@ wheels/
 .installed.cfg
 *.egg
 
+# Environment variables - IMPORTANT FOR SECURITY
+.env
+.env.local
+.env.*.local
+
 # Database
 *.db
 *.sqlite
@@ -34,6 +39,8 @@ wheels/
 *.log
 cache/
 logs/
+server/homeflix.log*
+server/error.log*
 
 # Node
 node_modules/

@@ -1,0 +1,65 @@
+{
+  "name": "homeflix-app",
+  "version": "2.0.0",
+  "description": "Homeflix - Serveur de streaming vidéo personnel",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
+  },
+  "build": {
+    "appId": "com.homeflix.app",
+    "productName": "Homeflix",
+    "asar": false,
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "icon.png"
+    ],
+    "extraResources": [
+      {
+        "from": "../server",
+        "to": "server",
+        "filter": ["**/*", "!**/__pycache__", "!**/*.pyc"]
+      },
+      {
+        "from": "../client/dist",
+        "to": "client/dist"
+      },
+      {
+        "from": "../data",
+        "to": "data"
+      }
+    ],
+    "win": {
+      "target": "dir",
+      "icon": "icon.png"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "icon.png"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "icon.png"
+    }
+  },
+  "keywords": [
+    "homeflix",
+    "streaming",
+    "video",
+    "media-server"
+  ],
+  "author": "Homeflix",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  }
+}

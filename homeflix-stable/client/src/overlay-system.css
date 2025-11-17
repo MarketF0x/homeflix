@@ -1,0 +1,349 @@
+/* =====================================================
+   SYSTÈME UNIFIÉ DE GESTION DES OVERLAYS ET MODALES
+   ===================================================== */
+
+/* --------------------------------------------------
+   1. CLASSES DE BASE POUR OVERLAYS
+   -------------------------------------------------- */
+
+/* Overlay de base - utilisé par TOUTES les modales */
+.overlay-base {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: flex-start; /* TOUJOURS aligné en haut */
+  justify-content: center;
+  padding-top: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch; /* Smooth scroll sur iOS */
+  
+  /* Backdrop blur et fond sombre */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.85);
+  
+  /* Optimisations GPU */
+  transform: translateZ(0);
+  will-change: opacity;
+  backface-visibility: hidden;
+  
+  /* Animation d'entrée */
+  animation: overlayFadeIn 0.3s ease-out;
+}
+
+@keyframes overlayFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* --------------------------------------------------
+   2. CONTENEUR DE CONTENU DANS OVERLAY
+   -------------------------------------------------- */
+
+/* Conteneur centré horizontalement mais en haut verticalement */
+.overlay-content {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto 40px; /* Marge en bas seulement */
+  padding: 0;
+  
+  /* Le contenu commence tout en haut */
+  margin-top: 0;
+  
+  /* Optimisations */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* --------------------------------------------------
+   3. CARTES/MODALES À L'INTÉRIEUR
+   -------------------------------------------------- */
+
+/* Style de base pour toutes les cartes/modales */
+.modal-card {
+  background: linear-gradient(145deg, #1e1e1e, #2a2a2a);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 0;
+  margin-bottom: 20px;
+  
+  /* Ombre premium */
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 0 1px rgba(255, 255, 255, 0.1);
+  
+  /* Optimisations */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  
+  /* Animation d'entrée */
+  animation: modalSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) translateZ(0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateZ(0);
+  }
+}
+
+/* --------------------------------------------------
+   4. EN-TÊTES DE MODALES
+   -------------------------------------------------- */
+
+.modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: linear-gradient(145deg, #1e1e1e, #2a2a2a);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px 16px 0 0;
+  padding: 20px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  
+  /* Empêcher le contenu de passer dessous */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+}
+
+/* --------------------------------------------------
+   5. BOUTON DE FERMETURE
+   -------------------------------------------------- */
+
+.modal-close-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.05);
+  color: #999;
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.modal-close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  transform: scale(1.1);
+}
+
+.modal-close-btn:active {
+  transform: scale(0.95);
+}
+
+/* --------------------------------------------------
+   6. CONTENU SCROLLABLE DE MODALE
+   -------------------------------------------------- */
+
+.modal-scrollable-content {
+  max-height: calc(90vh - 120px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 24px;
+  
+  /* Scrollbar personnalisée */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) rgba(255, 255, 255, 0.05);
+}
+
+.modal-scrollable-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-scrollable-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.modal-scrollable-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.modal-scrollable-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* --------------------------------------------------
+   7. BOUTONS PREMIUM
+   -------------------------------------------------- */
+
+.btn-primary {
+  background: linear-gradient(135deg, #e50914 0%, #b20710 100%);
+  border: none;
+  border-radius: 8px;
+  padding: 12px 24px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  
+  /* Optimisations */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-primary:hover::before {
+  left: 100%;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #f6121d 0%, #c9080f 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(229, 9, 20, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(229, 9, 20, 0.3);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 12px 24px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+}
+
+/* --------------------------------------------------
+   8. INPUTS ET FORMULAIRES PREMIUM
+   -------------------------------------------------- */
+
+.input-premium {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 12px 16px;
+  color: #ffffff;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.input-premium:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: #e50914;
+  box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.2);
+}
+
+.input-premium::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* --------------------------------------------------
+   9. PRÉVENTION DU SCROLL DU BODY
+   -------------------------------------------------- */
+
+/* Classe à ajouter au body quand une modale est ouverte */
+body.modal-open {
+  overflow: hidden;
+  /* Compenser la largeur de la scrollbar pour éviter le décalage */
+  padding-right: var(--scrollbar-width, 0px);
+}
+
+/* --------------------------------------------------
+   10. RESPONSIVE
+   -------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .overlay-content {
+    width: 95%;
+  }
+  
+  .modal-card {
+    border-radius: 12px;
+  }
+  
+  .modal-header {
+    padding: 16px 20px;
+  }
+  
+  .modal-title {
+    font-size: 20px;
+  }
+  
+  .modal-scrollable-content {
+    padding: 20px;
+    max-height: calc(90vh - 100px);
+  }
+  
+  .btn-primary,
+  .btn-secondary {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .overlay-content {
+    width: 100%;
+  }
+  
+  .modal-card {
+    border-radius: 0;
+    margin-bottom: 0;
+  }
+  
+  .modal-scrollable-content {
+    max-height: calc(100vh - 80px);
+  }
+}

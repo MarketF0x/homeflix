@@ -1,0 +1,91 @@
+/* ================================================
+   LAYOUT - CONTAINER
+   Conteneurs principaux et structure de page
+   ================================================ */
+
+/* Container principal */
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+  width: 100%;
+}
+
+.container-fluid {
+  width: 100%;
+  padding: 0 16px;
+}
+
+/* Sections */
+.section {
+  padding: 48px 0;
+}
+
+.section-sm {
+  padding: 32px 0;
+}
+
+.section-lg {
+  padding: 64px 0;
+}
+
+/* Hero section */
+.hero {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+  padding: 32px;
+}
+
+.hero-background {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.hero-background::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.7) 0%,
+    rgba(0, 0, 0, 0.9) 100%
+  );
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 16px;
+  }
+  
+  .section {
+    padding: 32px 0;
+  }
+  
+  .hero {
+    min-height: 50vh;
+  }
+  
+  .hero-content {
+    padding: 16px;
+  }
+}

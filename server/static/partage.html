@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accéder à Homeflix</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .emoji {
+            font-size: 4em;
+            margin: 20px 0;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+        
+        .qrcode-container {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+        
+        #qrcode {
+            display: inline-block;
+        }
+        
+        .link-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px dashed #667eea;
+        }
+        
+        .url {
+            font-size: 1.3em;
+            color: #667eea;
+            font-weight: bold;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #28a745;
+        }
+        
+        .instructions {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+            border-radius: 5px;
+        }
+        
+        .instructions h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .instructions li {
+            padding: 5px 0;
+            color: #856404;
+        }
+        
+        .instructions li:before {
+            content: "✓ ";
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .copy-notification {
+            display: none;
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        
+        .copy-notification.show {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="emoji">🎬</div>
+        <h1>Homeflix</h1>
+        <p class="subtitle">Accédez à votre bibliothèque de films</p>
+        
+        <div class="qrcode-container">
+            <div id="qrcode"></div>
+            <p style="margin-top: 15px; color: #666;">📱 Scannez avec votre smartphone</p>
+        </div>
+        
+        <div class="link-box">
+            <p style="color: #666; margin-bottom: 5px;">Ou cliquez sur ce lien :</p>
+            <div class="url" id="homeflixUrl">http://192.168.1.5:5173</div>
+            <button class="btn" onclick="openHomeflix()">🚀 Ouvrir Homeflix</button>
+            <button class="btn btn-secondary" onclick="copyLink()">📋 Copier le lien</button>
+            <div class="copy-notification" id="copyNotif">✅ Lien copié !</div>
+        </div>
+        
+        <div class="instructions">
+            <h3>📌 Instructions</h3>
+            <ul>
+                <li>Assurez-vous d'être sur le même réseau WiFi</li>
+                <li>Scannez le QR code ou cliquez sur le lien</li>
+                <li>Profitez de vos films et séries ! 🍿</li>
+            </ul>
+        </div>
+        
+        <p style="color: #999; font-size: 0.9em; margin-top: 20px;">
+            💡 Partagez cette page avec vos amis et famille
+        </p>
+    </div>
+    
+    <script>
+        // Génère le QR code
+        const url = "http://192.168.1.5:5173";
+        new QRCode(document.getElementById("qrcode"), {
+            text: url,
+            width: 200,
+            height: 200,
+            colorDark: "#667eea",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        
+        // Fonction pour ouvrir Homeflix
+        function openHomeflix() {
+            window.open(url, '_blank');
+        }
+        
+        // Fonction pour copier le lien
+        function copyLink() {
+            navigator.clipboard.writeText(url).then(function() {
+                const notif = document.getElementById('copyNotif');
+                notif.classList.add('show');
+                setTimeout(function() {
+                    notif.classList.remove('show');
+                }, 2000);
+            }).catch(function(err) {
+                // Fallback pour les anciens navigateurs
+                const textArea = document.createElement("textarea");
+                textArea.value = url;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                
+                const notif = document.getElementById('copyNotif');
+                notif.classList.add('show');
+                setTimeout(function() {
+                    notif.classList.remove('show');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>

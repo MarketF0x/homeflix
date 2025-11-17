@@ -1,0 +1,105 @@
+/**
+ * Breakpoints - Media Queries
+ * Mobile First Approach
+ */
+
+:root {
+  /* Breakpoint values */
+  --breakpoint-xs: 320px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+/* ========================================
+   MIXINS (utilisation via @media)
+   ======================================== */
+
+/* Extra Small devices (< 640px) */
+/* Par défaut (mobile first) */
+
+/* Remarque: Les règles @custom-media sont retirées pour éviter les avertissements
+  du minificateur LightningCSS. Les media queries nommées n'étaient pas utilisées. */
+
+/* ========================================
+   RESPONSIVE GRID COLUMNS
+   ======================================== */
+
+:root {
+  --grid-cols: 2; /* Mobile */
+}
+
+@media (min-width: 640px) {
+  :root {
+    --grid-cols: 3;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --grid-cols: 4;
+  }
+}
+
+@media (min-width: 1280px) {
+  :root {
+    --grid-cols: 5;
+  }
+}
+
+@media (min-width: 1536px) {
+  :root {
+    --grid-cols: 6;
+  }
+}
+
+/* ========================================
+   RESPONSIVE SPACING
+   ======================================== */
+
+:root {
+  --responsive-padding: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  :root {
+    --responsive-padding: var(--space-6);
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --responsive-padding: var(--space-8);
+  }
+}
+
+/* ========================================
+   FONT SIZE RESPONSIVE
+   ======================================== */
+
+:root {
+  --responsive-text-base: 14px;
+  --responsive-text-lg: 16px;
+  --responsive-text-xl: 18px;
+  --responsive-text-2xl: 20px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --responsive-text-base: 16px;
+    --responsive-text-lg: 18px;
+    --responsive-text-xl: 20px;
+    --responsive-text-2xl: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --responsive-text-base: 16px;
+    --responsive-text-lg: 20px;
+    --responsive-text-xl: 24px;
+    --responsive-text-2xl: 30px;
+  }
+}

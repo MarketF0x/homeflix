@@ -1,0 +1,36 @@
+/* ================================================
+   PAGES - HOME
+   Page d'accueil avec carrousels
+   ================================================ */
+
+.home-page {
+  padding-top: 32px;
+  padding-bottom: 48px;
+}
+
+.home-hero {
+  margin-bottom: 48px;
+  padding: 48px 24px;
+  background: linear-gradient(
+    180deg,
+    rgba(229, 9, 20, 0.1) 0%,
+    transparent 100%
+  );
+}
+
+.home-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+@media (max-width: 768px) {
+  .home-page {
+    padding-top: 16px;
+    padding-bottom: 32px;
+  }
+  
+  .home-hero {
+    padding: 24px 16px;
+  }
+}

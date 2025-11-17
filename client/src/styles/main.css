@@ -1,0 +1,66 @@
+/**
+ * HOMEFLIX - Styles Centralisés
+ * Architecture CSS professionnelle
+ * Importation ordonnée pour éviter les conflits
+ */
+
+/* 1. Configuration de base */
+@import './config/variables.css';
+@import './config/breakpoints.css';
+@import './config/animations.css';
+
+/* 2. Reset & Base */
+@import './base/reset.css';
+@import './base/typography.css';
+@import './base/utilities.css';
+
+/* 3. Layout */
+@import './layout/container.css';
+@import './layout/grid.css';
+@import './layout/navigation.css';
+@import './layout/footer.css';
+
+/* 4. Components */
+@import './components/buttons.css';
+@import './components/cards.css';
+@import './components/carousel.css';
+@import './components/forms.css';
+@import './components/modals.css';
+@import './components/player.css';
+@import './components/profiles.css';
+@import './components/keyboard-focus.css';
+
+/* 5. Pages spécifiques */
+@import './pages/home.css';
+@import './pages/video-detail.css';
+@import './pages/collections.css';
+
+/* 6. Styles additionnels (après tous les @import pour respecter les règles PostCSS) */
+
+/* 6.a. Unification des titres de rangées (section/category) */
+.row-title,
+.section-title,
+.category-title {
+	font-size: 1.4rem;
+	font-weight: 400;
+	text-transform: uppercase;
+	letter-spacing: 2px;
+	font-family: 'Helvetica Neue', Arial, sans-serif;
+	color: #e5e5e5;
+	position: relative;
+	margin: 0 0 12px 0;
+	padding-left: 2%;
+}
+
+.row-title::before,
+.section-title::before,
+.category-title::before {
+	content: "";
+	position: absolute;
+	left: 2%;
+	bottom: -4px;
+	width: 40px;
+	height: 2px;
+	background: #e50914;
+}
+

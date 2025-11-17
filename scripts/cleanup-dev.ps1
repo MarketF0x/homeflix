@@ -44,12 +44,12 @@ if ($DryRun) {
 }
 
 # 3. Arrêt forcé
-foreach ($pid in $targetPids) {
+foreach ($processId in $targetPids) {
     try {
-        Stop-Process -Id $pid -Force -ErrorAction Stop
-        Write-Info "Arrêt PID $pid OK"
+        Stop-Process -Id $processId -Force -ErrorAction Stop
+        Write-Info "Arrêt PID $processId OK"
     } catch {
-        Write-Info "Échec arrêt PID $pid : $_"
+        Write-Info "Échec arrêt PID $processId : $_"
     }
 }
 

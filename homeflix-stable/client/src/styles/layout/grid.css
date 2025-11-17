@@ -1,0 +1,45 @@
+/* ================================================
+   LAYOUT - GRID CONTAINER
+   Conteneur principal pour l'affichage en grille
+   ================================================ */
+
+/* Container général */
+.main-content {
+  flex: 1;
+  padding: var(--space-8) var(--space-6);
+  overflow-y: auto;
+  background: var(--color-bg-primary);
+}
+
+/* Grid de contenu */
+.content-grid {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Header de section */
+.section-header {
+  margin-bottom: var(--space-6);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-title {
+  font-size: var(--text-3xl);
+  font-weight: var(--font-bold);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .main-content {
+    padding: var(--space-4) var(--space-3);
+  }
+  
+  .section-title {
+    font-size: var(--text-2xl);
+  }
+}

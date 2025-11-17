@@ -1,0 +1,91 @@
+/* Footer avec attribution TMDb */
+.app-footer {
+  position: relative;
+  width: 100%;
+  padding: 2rem 4rem;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 4rem;
+  z-index: 5;
+}
+
+.footer-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.footer-logo {
+  display: flex;
+  align-items: center;
+}
+
+.tmdb-logo {
+  height: 32px;
+  width: auto;
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+}
+
+.tmdb-logo:hover {
+  opacity: 1;
+}
+
+.footer-text {
+  flex: 1;
+  text-align: left;
+  min-width: 250px;
+}
+
+.attribution-text {
+  margin: 0;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.5;
+}
+
+.copyright-text {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .app-footer {
+    padding: 1.5rem 2rem;
+  }
+  
+  .footer-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .footer-text {
+    text-align: left;
+  }
+  
+  .tmdb-logo {
+    height: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-footer {
+    padding: 1rem 1.5rem;
+  }
+  
+  .attribution-text {
+    font-size: 0.8rem;
+  }
+  
+  .copyright-text {
+    font-size: 0.7rem;
+  }
+}
