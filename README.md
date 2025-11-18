@@ -9,8 +9,9 @@
 [![Platform](https://img.shields.io/badge/platform-Windows-lightgrey.svg)](#)
 [![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](#)
 [![Node](https://img.shields.io/badge/node-16+-green.svg)](#)
+[![Production Ready](https://img.shields.io/badge/production-ready-success.svg)](docs/)
 
-[Installation](#-installation-rapide) • [Fonctionnalités](#-fonctionnalités) • [Documentation](#-documentation) • [Support](#-support)
+[Installation](#-installation-rapide) • [Fonctionnalités](#-fonctionnalités) • [Documentation](docs/) • [Support](#-support)
 
 </div>
 
@@ -128,11 +129,17 @@ video_folders:
 
 ## 📚 Documentation
 
-- 📘 **[Guide Utilisateur](GUIDE_UTILISATEUR.md)** - Documentation complète
-- 🏗️ **[Guide de Build](BUILD_PRODUCTION.md)** - Pour les développeurs
-- ✅ **[Checklist Commercialisation](CHECKLIST_COMMERCIALISATION.md)** - État de préparation
-- 📝 **[CHANGELOG](CHANGELOG.md)** - Historique des versions
-- ⚖️ **[LICENSE](LICENSE)** - Termes de la licence MIT
+**📖 Toute la documentation est dans le dossier [`docs/`](docs/)**
+
+| Document | Description |
+|----------|-------------|
+| [🚀 LANCEMENT.md](docs/LANCEMENT.md) | **Démarrez ici** - Vue d'ensemble et prochaines étapes |
+| [📖 GUIDE_UTILISATEUR.md](docs/GUIDE_UTILISATEUR.md) | Guide complet d'installation et d'utilisation |
+| [❓ FAQ.md](docs/FAQ.md) | Questions fréquentes et dépannage |
+| [🔧 BUILD_PRODUCTION.md](docs/BUILD_PRODUCTION.md) | Créer des builds de production |
+| [✅ CHECKLIST_COMMERCIALISATION.md](docs/CHECKLIST_COMMERCIALISATION.md) | État de préparation commerciale |
+
+� **[Accéder à toute la documentation](docs/)**
 
 ---
 

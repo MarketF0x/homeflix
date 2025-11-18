@@ -1,5 +1,4 @@
-
-+.# 📖 Guide Utilisateur - Homeflix
+# 📖 Guide Utilisateur - Homeflix
 
 Bienvenue dans **Homeflix**, votre solution de streaming personnelle pour gérer et regarder vos vidéos.
 
