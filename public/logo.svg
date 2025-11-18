@@ -1,0 +1,21 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="256" cy="256" r="240" fill="#2563eb" opacity="0.1"/>
+  
+  <!-- House Shape -->
+  <path d="M 256 100 L 380 200 L 380 380 L 300 380 L 300 280 L 212 280 L 212 380 L 132 380 L 132 200 Z" 
+        fill="#2563eb" stroke="#1e40af" stroke-width="4"/>
+  
+  <!-- Roof -->
+  <path d="M 256 100 L 420 230 L 380 230 L 256 140 L 132 230 L 92 230 Z" 
+        fill="#1e40af"/>
+  
+  <!-- Play Button Circle -->
+  <circle cx="256" cy="330" r="60" fill="#f59e0b" opacity="0.9"/>
+  
+  <!-- Play Triangle -->
+  <path d="M 240 310 L 240 350 L 280 330 Z" fill="white"/>
+  
+  <!-- Window -->
+  <rect x="230" y="180" width="52" height="52" fill="#60a5fa" opacity="0.6" rx="4"/>
+</svg>

@@ -113,7 +113,7 @@ class BuildValidator:
         """Vérifie la documentation"""
         docs = {
             'README.md': 'Guide principal',
-            'GUIDE_UTILISATEUR.md': 'Guide utilisateur',
+            'docs/GUIDE_UTILISATEUR.md': 'Guide utilisateur',
             'CHANGELOG.md': 'Historique des versions',
         }
         

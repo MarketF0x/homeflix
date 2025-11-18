@@ -1,6 +1,8 @@
 <div align="center">
 
-# 🎬 Homeflix
+<img src="public/logo.svg" alt="Homeflix Logo" width="180" height="180"/>
+
+# Homeflix
 
 **Votre serveur de streaming personnel avec interface web moderne**
 
@@ -10,6 +12,7 @@
 [![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](#)
 [![Node](https://img.shields.io/badge/node-16+-green.svg)](#)
 [![Production Ready](https://img.shields.io/badge/production-ready-success.svg)](docs/)
+[![Security Audit](https://img.shields.io/badge/security-0%20vulnerabilities-success.svg)](#)
 
 [Installation](#-installation-rapide) • [Fonctionnalités](#-fonctionnalités) • [Documentation](docs/) • [Support](#-support)
 

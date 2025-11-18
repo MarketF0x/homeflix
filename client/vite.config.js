@@ -77,11 +77,6 @@ export default defineConfig({
     sourcemap: false,
     // Minification optimale avec esbuild
     minify: 'esbuild',
-    // Configuration esbuild pour suppression console.log
-    esbuild: {
-      drop: ['console', 'debugger'],
-      pure: ['console.log', 'console.warn', 'console.debug'],
-    },
     // Rollup options pour code splitting intelligent
     rollupOptions: {
       output: {
