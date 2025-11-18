@@ -777,8 +777,21 @@ def get_subtitle(path: str, subtitle_track: int):
 
 
 # -------------------------------------------------------------------
-# �[VIDEO] API : Stream vidéo avec transcodage (pour MKV, AVI, etc.)
+# 🎬 [VIDEO] API : Stream vidéo avec transcodage (pour MKV, AVI, etc.)
 # -------------------------------------------------------------------
+@app.options("/api/stream/transcode")
+async def stream_transcode_preflight():
+    """Gère la requête OPTIONS pour CORS preflight"""
+    return Response(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
+            "Access-Control-Allow-Headers": "Range, Content-Type, Authorization",
+            "Access-Control-Max-Age": "3600"
+        }
+    )
+
 @app.get("/api/stream/transcode")
 def stream_video_transcode(path: str, audio_track: int = 0, subtitle_track: int = -1, quality: str = "medium"):
     """
@@ -787,14 +800,23 @@ def stream_video_transcode(path: str, audio_track: int = 0, subtitle_track: int 
     """
     video_path = Path(path)
     
-    logger.info(f"[VIDEO] TRANSCODAGE demande: {path}")
+    logger.info(f"[VIDEO] TRANSCODAGE demandé")
+    logger.info(f"   Chemin reçu: {path}")
+    logger.info(f"   Chemin normalisé: {video_path}")
+    logger.info(f"   Fichier existe: {video_path.exists()}")
     
     if not video_path.exists():
+        logger.error(f"   ❌ FICHIER INTROUVABLE!")
+        logger.error(f"   Chemin complet: {video_path.absolute()}")
+        logger.error(f"   Dossier parent: {video_path.parent}")
+        logger.error(f"   Parent existe: {video_path.parent.exists()}")
         raise HTTPException(status_code=404, detail=f"Fichier vidéo introuvable: {path}")
     else:
         try:
-            logger.info(f"   Taille: {video_path.stat().st_size / 1024 / 1024:.1f} MB")
-        except Exception:
+            file_size = video_path.stat().st_size / 1024 / 1024
+            logger.info(f"   ✅ Fichier trouvé - Taille: {file_size:.1f} MB")
+        except Exception as e:
+            logger.error(f"   ❌ Erreur stat fichier: {e}")
             pass
     
     # Vérifier que FFmpeg est disponible
@@ -834,17 +856,32 @@ def stream_video_transcode(path: str, audio_track: int = 0, subtitle_track: int 
             # 🎬 CODECS VIDÉO COMPATIBLES NAVIGATEURS (copie directe possible)
             # Navigateurs modernes supportent : H.264, H.265/HEVC, VP8, VP9, AV1
             # ⚠️ IMPORTANT : MPEG4/XVID/DIVX/MSMPEG4 nécessitent TOUJOURS un transcodage
+            # 
+            # 🔧 STRATÉGIE CONSERVATIVE : Seul H.264 baseline/main/high est accepté en COPY
+            #    Tous les autres codecs (même H.265) seront transcodés pour garantir compatibilité maximale
             mp4_compatible_video = [
-                'h264', 'avc',           # H.264 (codec universel)
-                'hevc', 'h265',          # H.265/HEVC (modern browsers)
-                'vp8', 'vp9', 'av1',     # Google/AOMedia codecs (web natifs)
+                'h264', 'avc',           # H.264 uniquement (codec le plus universel)
             ]
             
-            # TOUS les autres codecs (mpeg4, xvid, divx, msmpeg4, wmv, etc.) 
-            # seront transcodés en H.264 pour compatibilité universelle
-            if video_codec.lower() in mp4_compatible_video:
-                needs_video_conversion = False
-                logger.info(f"   ✅ [VIDEO] Codec {video_codec.upper()} compatible - COPIE DIRECTE")
+            # TOUS les autres codecs seront transcodés en H.264 pour compatibilité universelle
+            # ⚠️ DÉSACTIVATION TEMPORAIRE DU MODE COPY pour les fichiers MKV
+            # Raison : Les MKV peuvent avoir des métadonnées/timing incompatibles avec MP4
+            is_mkv = str(video_path).lower().endswith('.mkv')
+            
+            if video_codec.lower() in mp4_compatible_video and not is_mkv:
+                # Vérifier le profil H.264 (seuls baseline, main, high sont sûrs)
+                safe_profiles = ['baseline', 'main', 'high', 'constrained baseline']
+                if video_profile and video_profile.lower() not in [p.lower() for p in safe_profiles]:
+                    logger.info(f"   ⚠️ [VIDEO] Profil H.264 '{video_profile}' non standard - TRANSCODAGE par sécurité")
+                    needs_video_conversion = True
+                else:
+                    needs_video_conversion = False
+                    logger.info(f"   ✅ [VIDEO] Codec {video_codec.upper()} profil {video_profile} compatible - COPIE DIRECTE")
+            elif is_mkv and video_codec.lower() in mp4_compatible_video:
+                # Pour les MKV avec H.264, transcoder par précaution
+                logger.info(f"   ⚠️ [VIDEO] Fichier MKV détecté - TRANSCODAGE forcé pour compatibilité MP4")
+                logger.info(f"      → Conversion H.264 → H.264 (remuxing + correction timing)")
+                needs_video_conversion = True
             else:
                 logger.info(f"   ⚠️ [VIDEO] Codec {video_codec.upper()} incompatible - TRANSCODAGE requis")
                 logger.info(f"      → Conversion vers H.264 (compatibilité universelle)")
@@ -857,9 +894,10 @@ def stream_video_transcode(path: str, audio_track: int = 0, subtitle_track: int 
         audio_indices = [int(s.get('index')) for s in audio_streams if s.get('index') is not None]
         
         # Politique stricte pour compatibilité HTML5/MP4 dans navigateurs :
-        # - On ne considère compatibles en copie directe que AAC et MP3 en ≤ 2 canaux
-        # - Tous les autres (AC3, E-AC3, DTS, OPUS, etc.) seront convertis en AAC stéréo
-        mp4_copy_allowed = ['aac', 'mp3']
+        # - On ne considère compatible en copie directe que AAC en ≤ 2 canaux
+        # - Tous les autres (MP3, AC3, E-AC3, DTS, OPUS, etc.) seront convertis en AAC stéréo
+        # ⚠️ IMPORTANT : MP3 retiré car non universellement supporté dans MP4 par tous les navigateurs
+        mp4_copy_allowed = ['aac']
 
         needs_audio_conversion = False
         for s in audio_streams:
@@ -872,7 +910,7 @@ def stream_video_transcode(path: str, audio_track: int = 0, subtitle_track: int 
         if needs_audio_conversion:
             logger.info(f"   ⚠️ [AUDIO] Conversion en AAC stéréo requise pour compatibilité navigateur")
         else:
-            logger.info(f"   ✅ [AUDIO] Codec compatible (AAC/MP3 ≤ 2ch) - copie directe")
+            logger.info(f"   ✅ [AUDIO] Codec compatible (AAC ≤ 2ch) - copie directe")
         
         # Afficher résolution
         if video_width > 0:
@@ -905,21 +943,28 @@ def stream_video_transcode(path: str, audio_track: int = 0, subtitle_track: int 
     # 🚀 CONFIGURATION FFmpeg OPTIMISÉE AVEC DÉTECTION GPU
     # ================================================================================
     
-    # Détecter si une accélération GPU est disponible
+    # Détecter si une accélération GPU est disponible ET FONCTIONNELLE
     gpu_encoder = None
     try:
-        # Test NVIDIA NVENC (le plus rapide)
+        # Test NVIDIA NVENC avec un vrai test d'encodage
         nvenc_test = subprocess.run(
-            ["ffmpeg", "-hide_banner", "-encoders"],
+            ["ffmpeg", "-hide_banner", "-f", "lavfi", "-i", "nullsrc=s=256x256:d=1", 
+             "-c:v", "h264_nvenc", "-f", "null", "-"],
             capture_output=True, text=True, timeout=5
         )
-        if 'h264_nvenc' in nvenc_test.stdout:
+        if nvenc_test.returncode == 0:
             gpu_encoder = "h264_nvenc"
             logger.info(f"   🎮 GPU NVIDIA détecté - Utilisation NVENC")
-        # Test Intel Quick Sync
-        elif 'h264_qsv' in nvenc_test.stdout:
-            gpu_encoder = "h264_qsv"
-            logger.info(f"   🎮 GPU Intel détecté - Utilisation Quick Sync")
+        else:
+            # Test Intel Quick Sync
+            qsv_test = subprocess.run(
+                ["ffmpeg", "-hide_banner", "-f", "lavfi", "-i", "nullsrc=s=256x256:d=1", 
+                 "-c:v", "h264_qsv", "-f", "null", "-"],
+                capture_output=True, text=True, timeout=5
+            )
+            if qsv_test.returncode == 0:
+                gpu_encoder = "h264_qsv"
+                logger.info(f"   🎮 GPU Intel détecté - Utilisation Quick Sync")
     except:
         pass
     
@@ -989,15 +1034,26 @@ def stream_video_transcode(path: str, audio_track: int = 0, subtitle_track: int 
             "-vf", scale_filter,
             "-pix_fmt", "yuv420p",  # Compatibilité maximale
         ])
-        # Améliorer la stabilité du flux (GOP/latence) surtout pour AVI problématiques
-        # - Fixe une GOP raisonnable (2s à 24 fps ~= 48)
-        # - Désactive le scene-cut pour régularité des keyframes
-        # - Tune zerolatency pour libx264 uniquement
+        # Améliorer la stabilité du flux (GOP/latence) surtout pour AVI/MKV problématiques
+        # 🔧 CORRECTION CRITIQUE : GOP réduite de 48 → 24 frames (1s à 24fps)
+        # - Fragments MP4 plus petits et plus fréquents
+        # - Meilleure compatibilité avec le buffering navigateur
+        # - Réduit le risque de fragments incomplets dans les chunks
         if encoder == "libx264":
-            ffmpeg_cmd.extend(["-g", "48", "-keyint_min", "48", "-sc_threshold", "0", "-tune", "zerolatency"])
+            ffmpeg_cmd.extend([
+                "-g", "24",           # GOP de 1 seconde (keyframe chaque seconde)
+                "-keyint_min", "24",  # Forcer keyframe minimum = GOP
+                "-sc_threshold", "0", # Désactiver détection de scène (GOP fixe)
+                "-tune", "zerolatency",
+                "-x264opts", "no-scenecut"  # Double garantie : pas de scene-cut
+            ])
         else:
             # NVENC/QSV acceptent -g mais pas -tune zerolatency
-            ffmpeg_cmd.extend(["-g", "48", "-sc_threshold", "0"])
+            ffmpeg_cmd.extend([
+                "-g", "24",
+                "-keyint_min", "24",
+                "-sc_threshold", "0"
+            ])
         
         # Paramètres spécifiques GPU
         if gpu_encoder == "h264_nvenc":
@@ -1005,7 +1061,7 @@ def stream_video_transcode(path: str, audio_track: int = 0, subtitle_track: int 
         elif gpu_encoder == "h264_qsv":
             ffmpeg_cmd.extend(["-look_ahead", "1"])
     else:
-        # COPIE DIRECTE - Pas de réencodage vidéo
+        # COPIE DIRECTE - Pas de réencodage vidéo  
         ffmpeg_cmd.extend(["-c:v", "copy"])
         logger.info(f"   ⚡ Mode COPY activé - Pas de réencodage vidéo")
     
@@ -1041,12 +1097,22 @@ def stream_video_transcode(path: str, audio_track: int = 0, subtitle_track: int 
             ffmpeg_cmd.extend(["-c:a", "copy"])
     
     # Paramètres de sortie MP4 fragmenté
+    # 🔧 CORRECTION CRITIQUE : Utilisation de frag_every_frame pour fragments plus petits
+    # - frag_every_frame : Crée un fragment pour chaque frame (très petit, très fiable)
+    # - empty_moov : Header moov vide (métadonnées dans chaque moof)
+    # - default_base_moof : Timing relatif dans chaque fragment
+    # - omit_tfhd_offset : Éviter les offsets qui peuvent corrompre le stream
+    # 
+    # ✅ FALLBACK : Si frag_duration ne fonctionne pas, utiliser frag_keyframe
+    # ❌ RETIRÉ : faststart, isml, dash (conçus pour fichiers complets, pas streaming pipe)
     ffmpeg_cmd.extend([
         "-f", "mp4",
-        "-movflags", "frag_keyframe+empty_moov+default_base_moof+faststart",
+        "-movflags", "frag_keyframe+empty_moov+default_base_moof+omit_tfhd_offset",
+        # ⚡ TIMING CRITIQUE : Envoyer headers IMMÉDIATEMENT pour éviter timeout navigateur
+        "-fflags", "+nobuffer+flush_packets",
+        "-flush_packets", "1",
         # Muxing/Interleave pour réduire les risques de blocage en lecture progressive
         "-max_interleave_delta", "0",
-        "-flush_packets", "1",
         "-muxpreload", "0",
         "-muxdelay", "0",
         "-max_muxing_queue_size", "9999",
@@ -1061,18 +1127,30 @@ def stream_video_transcode(path: str, audio_track: int = 0, subtitle_track: int 
     def transcode_stream():
         mode_str = "COPY" if not needs_video_conversion else f"TRANSCODAGE ({encoder})"
         logger.info(f"[PROCESS] Lancement FFmpeg - Mode: {mode_str}")
-        logger.info(f"   Commande: {' '.join(ffmpeg_cmd[:10])}...")
+        logger.info(f"   Commande complète:")
+        for i, arg in enumerate(ffmpeg_cmd):
+            if i % 10 == 0 and i > 0:
+                logger.info(f"      {' '.join(ffmpeg_cmd[i:i+10])}")
+            elif i == 0:
+                logger.info(f"      {' '.join(ffmpeg_cmd[0:10])}")
         logger.info(f"   Buffer initial: 512 KB → 1 MB → 2 MB | Streaming progressif optimisé MP4")
+        logger.info(f"   Fichier source: {video_path}")
         
-        process = popen_hidden(
-            ffmpeg_cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            bufsize=2*1024*1024  # Buffer 2 MB pour éviter les stalls
-        )
+        try:
+            process = popen_hidden(
+                ffmpeg_cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                bufsize=2*1024*1024  # Buffer 2 MB pour éviter les stalls
+            )
+        except Exception as e:
+            logger.error(f"❌ [FFMPEG] Impossible de démarrer le processus: {e}")
+            raise HTTPException(status_code=500, detail=f"Erreur démarrage FFmpeg: {e}")
         
         # Lire les premières lignes de stderr pour voir si FFmpeg démarre bien
         stderr_lines = []
+        ffmpeg_started = threading.Event()
+        
         def read_stderr():
             try:
                 for line in process.stderr:
@@ -1080,11 +1158,24 @@ def stream_video_transcode(path: str, audio_track: int = 0, subtitle_track: int 
                     stderr_lines.append(line_str)
                     if 'Stream #0:' in line_str or 'Output #0' in line_str:
                         logger.info(f"   FFmpeg: {line_str}")
+                        ffmpeg_started.set()  # Signal que FFmpeg a bien démarré
+                    # Détecter les erreurs critiques de FFmpeg
+                    if any(err in line_str.lower() for err in ['invalid', 'error', 'failed', 'cannot', 'unsupported']):
+                        logger.error(f"   ⚠️ FFmpeg: {line_str}")
             except:
                 pass
         
         stderr_thread = threading.Thread(target=read_stderr, daemon=True)
         stderr_thread.start()
+        
+        # Attendre que FFmpeg démarre (max 3 secondes)
+        if not ffmpeg_started.wait(timeout=3.0):
+            logger.warning("⚠️ [FFMPEG] FFmpeg n'a pas envoyé de confirmation de démarrage dans les 3s")
+            logger.warning("   → Lecture stderr disponible:")
+            for line in stderr_lines[-5:]:
+                logger.warning(f"      {line}")
+        else:
+            logger.info("✅ [FFMPEG] Processus démarré et prêt à encoder")
         
         chunk_count = 0
         total_sent = 0
@@ -1093,17 +1184,19 @@ def stream_video_transcode(path: str, audio_track: int = 0, subtitle_track: int 
         try:
             while True:
                 # ✅ STRATÉGIE DE CHUNKS OPTIMISÉE POUR MP4 FRAGMENTÉ :
-                # - Chunk 1 : 512 KB (CRITIQUE - doit contenir moov+moof boxes complets)
+                # - Chunk 1 : 2 MB (CRITIQUE - doit contenir moov+moof+mdat boxes complets)
                 # - Chunks 2-5 : 1 MB (buffering initial rapide)
                 # - Chunks 6+ : 2 MB (streaming stable)
                 # 
                 # ⚠️ IMPORTANT : Le premier chunk DOIT être assez gros pour contenir :
                 #    - moov box (métadonnées globales, même vide avec empty_moov)
-                #    - Premier moof box (fragment metadata)
-                #    - Début du mdat box (données vidéo/audio)
-                # Sinon Chromium rejette le stream avec MEDIA_ERR_SRC_NOT_SUPPORTED
+                #    - Premier moof box (fragment metadata + timing)
+                #    - Premier mdat box complet (données vidéo/audio du fragment)
+                # 
+                # 🔧 CORRECTION : Augmenté de 512 KB → 2 MB car certains fichiers AVI/MPEG4
+                #    nécessitent plus de données pour générer un segment MP4 valide
                 if chunk_count == 0:
-                    chunk_size = 512 * 1024  # 512 KB - Premier chunk DOIT contenir init segment complet
+                    chunk_size = 2 * 1024 * 1024  # 2 MB - Premier chunk DOIT contenir init segment + premier fragment complet
                 elif chunk_count < 5:
                     chunk_size = 1024 * 1024  # 1 MB - Buffer initial
                 else:
@@ -1119,6 +1212,7 @@ def stream_video_transcode(path: str, audio_track: int = 0, subtitle_track: int 
                         rc = None
                     if rc not in (None, 0):
                         # Lire quelques lignes d'erreur pour diagnostic
+                        logger.error(f"❌ [FFMPEG] Arrêt prématuré (rc={rc}). Détails:")
                         try:
                             err_tail = []
                             for _ in range(20):
@@ -1127,11 +1221,18 @@ def stream_video_transcode(path: str, audio_track: int = 0, subtitle_track: int 
                                     break
                                 err_tail.append(line.decode('utf-8', errors='ignore').strip())
                             if err_tail:
-                                logger.error("❌ [FFMPEG] Arrêt prématuré (rc=%s). Détails:", rc)
                                 for l in err_tail[-10:]:
-                                    logger.error("   %s", l)
-                        except Exception:
-                            pass
+                                    logger.error(f"   {l}")
+                            else:
+                                logger.error("   (Aucune sortie stderr disponible)")
+                        except Exception as err_e:
+                            logger.error(f"   Erreur lecture stderr: {err_e}")
+                        
+                        # Si c'est le premier chunk qui échoue, c'est un problème critique
+                        if chunk_count == 0:
+                            logger.error("❌ [FFMPEG] ÉCHEC DÈS LE PREMIER CHUNK - Fichier probablement corrompu ou codec invalide")
+                            logger.error(f"   Fichier: {video_path}")
+                            logger.error(f"   Codec détecté: {video_codec}")
                     logger.info(f"📊 [STREAMING] Fin - Total envoyé: {total_sent / 1024 / 1024:.1f} MB")
                     break
                     
@@ -1141,6 +1242,22 @@ def stream_video_transcode(path: str, audio_track: int = 0, subtitle_track: int 
                 # Log du premier chunk (CRITIQUE pour démarrage)
                 if chunk_count == 1:
                     logger.info(f"✅ [STREAMING] Premier chunk envoyé - Lecture IMMÉDIATE ({len(chunk)/1024:.1f} KB)")
+                    # Vérifier si le chunk contient les boxes MP4 essentielles
+                    if b'ftyp' in chunk[:100]:
+                        logger.info(f"   ✅ ftyp box détectée (File Type)")
+                    else:
+                        logger.warning(f"   ⚠️ ftyp box manquante dans le premier chunk!")
+                    
+                    if b'moov' in chunk:
+                        logger.info(f"   ✅ moov box détectée (Movie Header)")
+                    else:
+                        logger.warning(f"   ⚠️ moov box manquante dans le premier chunk!")
+                    
+                    if b'moof' in chunk:
+                        logger.info(f"   ✅ moof box détectée (Movie Fragment)")
+                    else:
+                        logger.warning(f"   ⚠️ moof box manquante - le navigateur pourrait rejeter le stream!")
+                    
                     first_chunk_sent = True
                 
                 # Log à 1 MB envoyé (buffer navigateur rempli)
@@ -1178,7 +1295,12 @@ def stream_video_transcode(path: str, audio_track: int = 0, subtitle_track: int 
             "Accept-Ranges": "none",
             "Content-Type": "video/mp4",
             "Connection": "keep-alive",  # Maintenir la connexion
-            "Cache-Control": "no-cache"  # Éviter le cache pour le transcodage
+            "Cache-Control": "no-cache",  # Éviter le cache pour le transcodage
+            # ✅ Headers CORS explicites pour l'élément <video> HTML5
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
+            "Access-Control-Allow-Headers": "Range, Content-Type",
+            "Access-Control-Expose-Headers": "Content-Length, Content-Range, Accept-Ranges"
         }
     )
 

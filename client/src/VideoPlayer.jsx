@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useLayoutEffect } from "react";
-import { thumbURL, API } from "./config.js";
+import { thumbURL, API, getApiBaseUrl } from "./config.js";
 import { useI18n } from "./i18n";
 
 export default function VideoPlayer({ video, onClose, currentProfile }) {
@@ -34,6 +34,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
   const retryCountRef = useRef(0);
   const lastBufferCheckRef = useRef(0);
   const retryDelayRef = useRef(1000); // Délai retry exponentiel
+  const hasAttemptedPlayRef = useRef(false); // Empêcher les tentatives multiples de lecture au montage
   
   // Déterminer si on doit forcer le transcodage dès le départ
   const videoExt = video.path.toLowerCase().split('.').pop();
@@ -57,8 +58,8 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
   // - MKV : essayer direct (H.264 dans MKV fonctionne sur navigateurs modernes)
   // - AVI/WMV/FLV : transcodage direct (rarement supportés)
   
-  // API est déjà http://hostname:8000/api, on enlève /api pour avoir la base
-  const baseUrl = API.substring(0, API.lastIndexOf('/api'));
+  // ✅ Utiliser directement getApiBaseUrl() pour avoir la bonne URL de base
+  const baseUrl = getApiBaseUrl();
   
   // ✅ STRATÉGIE INTELLIGENTE :
   // - MP4/WEBM : Toujours streaming direct (natifs HTML5)
@@ -68,6 +69,15 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
   const transcodeUrl = `${baseUrl}/api/stream/transcode?path=${encodeURIComponent(video.path)}&audio_track=${selectedAudioTrack}${selectedSubtitleTrack >= 0 ? `&subtitle_track=${selectedSubtitleTrack}` : ''}&quality=${transcodeQuality}`;
   // Utiliser transcodage si demandé, sinon streaming direct
   const videoUrl = useTranscode ? transcodeUrl : directUrl;
+  
+  // 🔍 Log de diagnostic des URLs de streaming
+  console.log('🎬 VideoPlayer URLs:', {
+    baseUrl,
+    directUrl: directUrl.substring(0, 100) + '...',
+    transcodeUrl: transcodeUrl.substring(0, 100) + '...',
+    videoUrl: videoUrl.substring(0, 100) + '...',
+    useTranscode
+  });
 
   // Fonction de sauvegarde de la progression (définie avant les useEffect pour être accessible)
   const saveProgress = useCallback(async (position) => {
@@ -180,6 +190,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
   }, [video.path, baseUrl]);
 
   // Effet pour recharger la vidéo quand on bascule vers transcodage OU change de piste
+  // ⚠️ NE PAS INCLURE videoUrl dans les dépendances car il change tout le temps
   useEffect(() => {
     if (videoRef.current) {
       const currentPos = videoRef.current.currentTime || 0;
@@ -187,6 +198,9 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
       console.log('🔄 Rechargement vidéo - Mode:', useTranscode ? 'TRANSCODAGE' : 'DIRECT');
       setIsLoading(true);
       setLoadError(null);
+      
+      // Réinitialiser la ref pour permettre une nouvelle tentative de lecture
+      hasAttemptedPlayRef.current = false;
       
       videoRef.current.load();
       
@@ -216,7 +230,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
         }
       };
     }
-  }, [useTranscode, selectedAudioTrack, selectedSubtitleTrack, videoUrl]);
+  }, [useTranscode, selectedAudioTrack, selectedSubtitleTrack, transcodeQuality]);
 
   // Messages informatifs progressifs - MASQUÉS dès que la vidéo démarre
   useEffect(() => {
@@ -420,6 +434,9 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
       // Si width/height = 0, le codec vidéo n'est pas supporté
       if (videoElement.videoWidth === 0 || videoElement.videoHeight === 0) {
         console.error('❌ CODEC VIDÉO NON SUPPORTÉ : Dimensions = 0x0');
+        console.error(`   Chemin: ${video.path}`);
+        console.error(`   Extension: ${videoExt}`);
+        console.error(`   Mode actuel: ${useTranscode ? 'TRANSCODAGE' : 'DIRECT'}`);
         
         if (!useTranscode && retryCountRef.current === 0) {
           console.log('🔄 Activation automatique du transcodage pour codec incompatible...');
@@ -427,11 +444,24 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
           setUseTranscode(true);
           retryCountRef.current = 1; // Marquer qu'on a essayé
           return;
-        } else if (useTranscode) {
-          setLoadError('Erreur : Codec vidéo non supporté même en transcodage');
+        } else if (useTranscode && retryCountRef.current < 2) {
+          // Tenter le streaming direct en dernier recours
+          console.log('🔄 ÉCHEC TRANSCODAGE - Tentative streaming DIRECT en dernier recours...');
+          setLoadInfo('🔄 Échec transcodage - tentative lecture directe...');
+          setUseTranscode(false);
+          retryCountRef.current = 2;
+          return;
+        } else {
+          setLoadError('❌ Erreur : Impossible de lire cette vidéo. Le fichier est probablement corrompu ou utilise un codec non supporté par FFmpeg.');
+          console.error('❌ ÉCHEC COMPLET - Vérifier les logs serveur FFmpeg');
+          console.error('   📋 Suggestions:');
+          console.error('      1. Vérifier que FFmpeg est installé: ffmpeg -version');
+          console.error('      2. Vérifier les logs serveur pour voir les erreurs FFmpeg');
+          console.error('      3. Le fichier source est peut-être corrompu');
         }
       } else {
         console.log(`✅ Dimensions vidéo OK: ${videoElement.videoWidth}x${videoElement.videoHeight}`);
+        console.log(`✅ Codec vidéo compatible - Mode: ${useTranscode ? 'TRANSCODAGE' : 'DIRECT'}`);
         retryCountRef.current = 0; // Réinitialiser si la vidéo fonctionne
       }
     };
@@ -474,9 +504,46 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
     videoElement.addEventListener('progress', updateBufferProgress);
     videoElement.addEventListener('timeupdate', updateBufferProgress);
 
-    // ✅ RETRY EXPONENTIEL : Gestion intelligente des erreurs réseau
-    const handleNetworkError = (error) => {
-      console.error('❌ Erreur réseau détectée:', error);
+    // ✅ RETRY EXPONENTIEL : Gestion intelligente des erreurs réseau et de décodage
+    const handleNetworkError = (e) => {
+      const error = videoElement.error;
+      
+      if (error) {
+        console.error('❌ Erreur vidéo détectée:');
+        console.error(`   Code: ${error.code} (${getErrorCodeName(error.code)})`);
+        console.error(`   Message: ${error.message}`);
+        console.error(`   Position: ${videoElement.currentTime}s`);
+        console.error(`   Mode: ${useTranscode ? 'TRANSCODAGE' : 'DIRECT'}`);
+        
+        // MEDIA_ERR_SRC_NOT_SUPPORTED (code 4) ou MEDIA_ERR_DECODE (code 3)
+        if (error.code === 3 || error.code === 4) {
+          console.error('❌ Erreur de décodage ou format non supporté');
+          
+          if (!useTranscode && retryCountRef.current === 0) {
+            console.log('🔄 Basculement automatique vers TRANSCODAGE...');
+            setLoadInfo('🔄 Format non supporté - activation transcodage...');
+            setUseTranscode(true);
+            retryCountRef.current = 1;
+            return;
+          } else if (useTranscode && retryCountRef.current < 2) {
+            // Si le transcodage échoue, tenter le streaming direct en dernier recours
+            console.log('🔄 ÉCHEC TRANSCODAGE - Tentative streaming DIRECT en dernier recours...');
+            setLoadInfo('🔄 Échec transcodage - tentative lecture directe...');
+            setUseTranscode(false);
+            retryCountRef.current = 2; // Marquer qu'on a tout essayé
+            return;
+          } else {
+            // Tout a échoué
+            setLoadError('❌ Erreur : Impossible de lire cette vidéo. Le fichier est probablement corrompu ou utilise un codec non supporté.');
+            console.error('❌ ÉCHEC TOTAL - Ni le streaming direct ni le transcodage ne fonctionnent');
+            console.error(`   Extension: ${videoExt}`);
+            console.error(`   Chemin: ${video.path}`);
+            return;
+          }
+        }
+      }
+      
+      console.error('❌ Erreur réseau ou autre:', e);
       
       // Calculer délai exponentiel : 1s, 2s, 4s, 8s, 16s max
       const delay = Math.min(retryDelayRef.current, 16000);
@@ -503,37 +570,115 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
         retryDelayRef.current = 1000;
       }
     };
+    
+    // Helper pour afficher le nom du code d'erreur
+    const getErrorCodeName = (code) => {
+      const codes = {
+        1: 'MEDIA_ERR_ABORTED',
+        2: 'MEDIA_ERR_NETWORK',
+        3: 'MEDIA_ERR_DECODE',
+        4: 'MEDIA_ERR_SRC_NOT_SUPPORTED'
+      };
+      return codes[code] || 'UNKNOWN';
+    };
 
     videoElement.addEventListener('error', handleNetworkError);
 
-    // Tenter de lire automatiquement
-    const playPromise = videoElement.play();
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => {
-          console.log('✅ Lecture automatique réussie');
-          setIsPlaying(true);
-          detectAudioTracks(); // Détecter les pistes après le début de lecture
-          detectSubtitles();
-          
-          // Vérification supplémentaire après 3 secondes de lecture
-          setTimeout(() => {
-            if (videoElement && (videoElement.videoWidth === 0 || videoElement.videoHeight === 0)) {
-              console.error('❌ CODEC VIDÉO NON SUPPORTÉ détecté après lecture');
-              
-              if (!useTranscode && retryCountRef.current === 0) {
-                console.log('🔄 Basculement vers transcodage...');
-                setLoadInfo('🔄 Problème vidéo détecté - activation transcodage...');
-                setUseTranscode(true);
-                retryCountRef.current = 1;
+    // ✅ MEILLEURE GESTION DES ÉTATS DE CHARGEMENT
+    const handleCanPlay = () => {
+      console.log('✅ canplay - La vidéo peut commencer à jouer');
+      setIsLoading(false);
+      setLoadInfo(null);
+    };
+
+    const handleCanPlayThrough = () => {
+      console.log('✅ canplaythrough - La vidéo peut être jouée sans interruption');
+      setIsLoading(false);
+      setLoadInfo(null);
+      retryCountRef.current = 0; // Réinitialiser les retries
+      retryDelayRef.current = 1000;
+    };
+
+    const handleWaiting = () => {
+      console.log('⏳ waiting - La vidéo est en attente de données...');
+      setIsLoading(true);
+    };
+
+    const handlePlaying = () => {
+      console.log('▶️ playing - La vidéo a commencé à jouer');
+      setIsPlaying(true);
+      setIsLoading(false);
+      setLoadInfo(null);
+      
+      // Vérification supplémentaire du codec après le début de lecture
+      if (videoElement.videoWidth === 0 || videoElement.videoHeight === 0) {
+        console.error('❌ CODEC DÉFAILLANT détecté pendant la lecture (dimensions = 0x0)');
+        console.error(`   CurrentTime: ${videoElement.currentTime}s, ReadyState: ${videoElement.readyState}`);
+        
+        if (!useTranscode) {
+          console.log('🔄 Basculement automatique vers TRANSCODAGE...');
+          setLoadInfo('🔄 Problème de codec - passage en transcodage...');
+          setUseTranscode(true);
+        }
+      }
+    };
+
+    const handlePause = () => {
+      console.log('⏸️ pause - La vidéo est en pause');
+      setIsPlaying(false);
+    };
+
+    const handleStalled = () => {
+      console.warn('⚠️ stalled - Le téléchargement des données est bloqué');
+      console.warn(`   Position: ${videoElement.currentTime}s, ReadyState: ${videoElement.readyState}, NetworkState: ${videoElement.networkState}`);
+      setIsLoading(true);
+    };
+
+    const handleSuspend = () => {
+      console.log('⏸️ suspend - Le téléchargement a été suspendu');
+    };
+
+    videoElement.addEventListener('canplay', handleCanPlay);
+    videoElement.addEventListener('canplaythrough', handleCanPlayThrough);
+    videoElement.addEventListener('waiting', handleWaiting);
+    videoElement.addEventListener('playing', handlePlaying);
+    videoElement.addEventListener('pause', handlePause);
+    videoElement.addEventListener('stalled', handleStalled);
+    videoElement.addEventListener('suspend', handleSuspend);
+
+    // Tenter de lire automatiquement (une seule fois au montage)
+    if (!hasAttemptedPlayRef.current) {
+      hasAttemptedPlayRef.current = true;
+      
+      const playPromise = videoElement.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            console.log('✅ Lecture automatique réussie');
+            setIsPlaying(true);
+            detectAudioTracks(); // Détecter les pistes après le début de lecture
+            detectSubtitles();
+            
+            // Vérification supplémentaire après 3 secondes de lecture
+            setTimeout(() => {
+              if (videoElement && (videoElement.videoWidth === 0 || videoElement.videoHeight === 0)) {
+                console.error('❌ CODEC VIDÉO NON SUPPORTÉ détecté après lecture');
+                
+                if (!useTranscode && retryCountRef.current === 0) {
+                  console.log('🔄 Basculement vers transcodage...');
+                  setLoadInfo('🔄 Problème vidéo détecté - activation transcodage...');
+                  setUseTranscode(true);
+                  retryCountRef.current = 1;
+                }
               }
-            }
-          }, 3000);
-        })
-        .catch((error) => {
-          console.warn('⚠️ Lecture automatique bloquée par le navigateur:', error);
-          // Le navigateur bloque l'autoplay, l'utilisateur devra cliquer
-        });
+            }, 3000);
+          })
+          .catch((error) => {
+            console.warn('⚠️ Lecture automatique bloquée par le navigateur:', error);
+            setIsLoading(false);
+            // Le navigateur bloque l'autoplay, l'utilisateur devra cliquer
+          });
+      }
     }
 
     // Sauvegarder la progression toutes les 5 secondes
@@ -548,6 +693,10 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
     let stalledCount = 0;
     let isBuffering = true; // Ignorer les premiers instants de buffering
     
+    // ✅ Pour le transcodage, donner plus de temps avant de détecter un blocage
+    // (le transcodage FFmpeg peut prendre 10-15s à démarrer)
+    const stalledThreshold = useTranscode ? 15 : 5; // 30s pour transcodage, 10s pour direct
+    
     const stalledCheckInterval = setInterval(() => {
       if (!videoElement.paused && !videoElement.ended) {
         // Attendre que la vidéo ait commencé à jouer avant de détecter les blocages
@@ -557,13 +706,29 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
         
         if (!isBuffering && videoElement.currentTime === lastTime) {
           stalledCount++;
-          console.warn(`⚠️ Vidéo bloquée détectée (${stalledCount}/5)...`);
+          console.warn(`⚠️ Vidéo bloquée détectée (${stalledCount}/${stalledThreshold}) - Position: ${videoElement.currentTime}s, ReadyState: ${videoElement.readyState}, NetworkState: ${videoElement.networkState}`);
+          console.warn(`   Buffer: ${videoElement.buffered.length > 0 ? videoElement.buffered.end(0) : 0}s, Erreur: ${videoElement.error ? videoElement.error.message : 'Aucune'}`);
           
-          if (stalledCount >= 5) {
-            // Blocage confirmé après 5 vérifications (10 secondes)
-            console.log('🔄 Tentative de déblocage automatique...');
+          if (stalledCount >= stalledThreshold) {
+            // Blocage confirmé après stalledThreshold vérifications
+            console.error('❌ VIDÉO BLOQUÉE - Tentative de déblocage automatique...');
             setIsStalled(true);
             setStalledTime(stalledCount * 2);
+            
+            // Vérifier si c'est un problème de codec
+            if (videoElement.videoWidth === 0 || videoElement.videoHeight === 0) {
+              console.error('❌ CODEC VIDÉO DÉFAILLANT détecté lors du blocage (dimensions = 0x0)');
+              
+              if (!useTranscode) {
+                console.log('🔄 Basculement vers TRANSCODAGE pour résoudre le problème de codec...');
+                setLoadInfo('🔄 Problème de codec détecté - activation transcodage...');
+                setUseTranscode(true);
+                stalledCount = 0;
+                return;
+              } else {
+                setLoadError('❌ Erreur : Codec vidéo non supporté même avec le transcodage');
+              }
+            }
             
             // Forcer le rechargement du buffer avec micro-seek
             const currentPos = videoElement.currentTime;
@@ -623,6 +788,13 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
       videoElement.removeEventListener('progress', updateBufferProgress);
       videoElement.removeEventListener('timeupdate', updateBufferProgress);
       videoElement.removeEventListener('error', handleNetworkError);
+      videoElement.removeEventListener('canplay', handleCanPlay);
+      videoElement.removeEventListener('canplaythrough', handleCanPlayThrough);
+      videoElement.removeEventListener('waiting', handleWaiting);
+      videoElement.removeEventListener('playing', handlePlaying);
+      videoElement.removeEventListener('pause', handlePause);
+      videoElement.removeEventListener('stalled', handleStalled);
+      videoElement.removeEventListener('suspend', handleSuspend);
       videoElement.removeEventListener('enterpictureinpicture', handleEnterPiP);
       videoElement.removeEventListener('leavepictureinpicture', handleLeavePiP);
       
@@ -636,7 +808,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
         saveProgress(Math.floor(videoElement.currentTime));
       }
     };
-  }, [video, savedPosition, saveProgress]);  // Ajout de saveProgress dans les dépendances
+  }, [video.id, video.path, savedPosition, saveProgress, useTranscode, transcodeQuality]);  // Dépendances stabilisées
 
   const togglePlay = () => {
     const videoElement = videoRef.current;
@@ -1184,8 +1356,8 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
         </div>
       )}
 
-      {/* Indicateur de vidéo bloquée (stalled) */}
-      {isStalled && !loadError && (
+      {/* Indicateur de vidéo bloquée (stalled) - DÉSACTIVÉ */}
+      {/* {isStalled && !loadError && (
         <div className="video-stalled">
           <div className="spinner"></div>
           <p>🔄 Récupération en cours...</p>
@@ -1193,7 +1365,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
             La vidéo semble bloquée, tentative de déblocage automatique...
           </p>
         </div>
-      )}
+      )} */}
 
       {/* Message d'erreur */}
       {loadError && (

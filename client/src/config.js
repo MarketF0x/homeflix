@@ -8,14 +8,22 @@
  * @returns {string} URL de base de l'API
  */
 export function getApiBaseUrl() {
-  // Si en mode développement avec Vite, utiliser le proxy
+  const protocol = window.location.protocol;
+  const hostname = window.location.hostname;
+  
+  // Si en mode développement avec Vite
   if (import.meta.env.DEV) {
+    // ✅ FIX: Si on accède depuis le réseau (IP distante), ne PAS utiliser le proxy
+    // Le proxy Vite ne fonctionne que pour localhost
+    if (hostname !== 'localhost' && hostname !== '127.0.0.1' && hostname !== '') {
+      // Accès réseau -> pointer directement vers le backend sur port 8000
+      return `http://${hostname}:8000`;
+    }
+    // Accès local -> utiliser le proxy Vite (chaîne vide)
     return ''; // Les requêtes /api/* sont proxifiées par Vite
   }
   
   // En production/Electron, détecter si on est en local ou distant
-  const protocol = window.location.protocol;
-  const hostname = window.location.hostname;
   // Cas Electron / file:// ou hostname vide -> fallback local
   if (protocol === 'file:' || !hostname) {
     return 'http://127.0.0.1:8000';
@@ -61,6 +69,7 @@ export const API = getApiUrl('/api');
 
 // Log pour diagnostic (uniquement en dev)
 if (import.meta.env.DEV) {
+  console.log('🌐 API Base URL:', getApiBaseUrl());
   console.log('🌐 API URL configurée:', API);
   console.log('🌐 Hostname:', window.location.hostname);
 }
