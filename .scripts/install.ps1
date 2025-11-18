@@ -157,38 +157,138 @@ Write-Host "🎬 Installation de Homeflix - Serveur de streaming personnel" -For
 Write-Host "=============================================================" -ForegroundColor Cyan
 Write-Host ""
 
+# ═══════════════════════════════════════════════════════════════
+# VÉRIFICATION ET INSTALLATION AUTOMATIQUE DES DÉPENDANCES
+# ═══════════════════════════════════════════════════════════════
+
+Write-Host "🔍 Vérification des dépendances système..." -ForegroundColor Cyan
+Write-Host ""
+
+# Fonction pour installer Python automatiquement
+function Install-Python {
+    Write-Host "📦 Installation automatique de Python 3.11..." -ForegroundColor Yellow
+    $pythonUrl = "https://www.python.org/ftp/python/3.11.9/python-3.11.9-amd64.exe"
+    $pythonInstaller = "$env:TEMP\python-installer.exe"
+    
+    try {
+        Write-Host "   Téléchargement de Python..." -ForegroundColor Gray
+        Invoke-WebRequest -Uri $pythonUrl -OutFile $pythonInstaller -UseBasicParsing
+        
+        Write-Host "   Installation en cours..." -ForegroundColor Gray
+        Start-Process -FilePath $pythonInstaller -ArgumentList "/quiet","InstallAllUsers=1","PrependPath=1","Include_test=0" -Wait
+        
+        # Rafraîchir l'environnement PATH
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        
+        Write-Host "✅ Python installé avec succès!" -ForegroundColor Green
+        Remove-Item $pythonInstaller -Force -ErrorAction SilentlyContinue
+        return $true
+    } catch {
+        Write-Host "❌ Erreur lors de l'installation de Python" -ForegroundColor Red
+        Write-Host "   Veuillez installer manuellement: https://www.python.org/downloads/" -ForegroundColor Yellow
+        return $false
+    }
+}
+
+# Fonction pour installer Node.js automatiquement
+function Install-NodeJS {
+    Write-Host "📦 Installation automatique de Node.js LTS..." -ForegroundColor Yellow
+    $nodeUrl = "https://nodejs.org/dist/v20.18.1/node-v20.18.1-x64.msi"
+    $nodeInstaller = "$env:TEMP\nodejs-installer.msi"
+    
+    try {
+        Write-Host "   Téléchargement de Node.js..." -ForegroundColor Gray
+        Invoke-WebRequest -Uri $nodeUrl -OutFile $nodeInstaller -UseBasicParsing
+        
+        Write-Host "   Installation en cours (cela peut prendre 2-3 minutes)..." -ForegroundColor Gray
+        Start-Process msiexec.exe -ArgumentList "/i","$nodeInstaller","/quiet","/norestart" -Wait
+        
+        # Rafraîchir l'environnement PATH
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        
+        Write-Host "✅ Node.js installé avec succès!" -ForegroundColor Green
+        Remove-Item $nodeInstaller -Force -ErrorAction SilentlyContinue
+        return $true
+    } catch {
+        Write-Host "❌ Erreur lors de l'installation de Node.js" -ForegroundColor Red
+        Write-Host "   Veuillez installer manuellement: https://nodejs.org/" -ForegroundColor Yellow
+        return $false
+    }
+}
+
+# Fonction pour installer FFmpeg automatiquement
+function Install-FFmpeg {
+    Write-Host "📦 Installation automatique de FFmpeg..." -ForegroundColor Yellow
+    
+    # Utiliser le script existant si disponible
+    if (Test-Path "$projectRoot\check_and_install_ffmpeg.py") {
+        try {
+            & python "$projectRoot\check_and_install_ffmpeg.py"
+            Write-Host "✅ FFmpeg installé avec succès!" -ForegroundColor Green
+            return $true
+        } catch {
+            Write-Host "⚠️  Installation FFmpeg échouée (non critique)" -ForegroundColor Yellow
+            return $false
+        }
+    }
+    
+    # Alternative: installation manuelle guidée
+    Write-Host "   Installation manuelle recommandée:" -ForegroundColor Gray
+    Write-Host "   1. Télécharger: https://github.com/BtbN/FFmpeg-Builds/releases" -ForegroundColor Gray
+    Write-Host "   2. Extraire dans C:\ffmpeg" -ForegroundColor Gray
+    Write-Host "   3. Ajouter C:\ffmpeg\bin au PATH" -ForegroundColor Gray
+    return $false
+}
+
 # Vérification de Python
-Write-Host "🔍 Vérification de Python..." -ForegroundColor Yellow
+Write-Host "1️⃣  Python..." -ForegroundColor Yellow
 try {
     $pythonVersion = python --version 2>&1
-    Write-Host "✅ Python trouvé: $pythonVersion" -ForegroundColor Green
+    Write-Host "   ✅ Python trouvé: $pythonVersion" -ForegroundColor Green
 } catch {
-    Write-Host "❌ Python n'est pas installé!" -ForegroundColor Red
-    Write-Host "   Téléchargez Python depuis: https://www.python.org/downloads/" -ForegroundColor Yellow
-    Write-Host "   Assurez-vous de cocher 'Add Python to PATH' lors de l'installation" -ForegroundColor Yellow
-    exit 1
+    Write-Host "   ⚠️  Python non trouvé" -ForegroundColor Yellow
+    $installPython = Read-Host "   Installer Python automatiquement ? (O/n)"
+    if ($installPython -ne 'n' -and $installPython -ne 'N') {
+        if (-not (Install-Python)) {
+            exit 1
+        }
+    } else {
+        Write-Host "❌ Python est requis pour continuer" -ForegroundColor Red
+        exit 1
+    }
 }
 
 # Vérification de Node.js
-Write-Host "🔍 Vérification de Node.js..." -ForegroundColor Yellow
+Write-Host "2️⃣  Node.js..." -ForegroundColor Yellow
 try {
     $nodeVersion = node --version 2>&1
-    Write-Host "✅ Node.js trouvé: $nodeVersion" -ForegroundColor Green
+    Write-Host "   ✅ Node.js trouvé: $nodeVersion" -ForegroundColor Green
 } catch {
-    Write-Host "❌ Node.js n'est pas installé!" -ForegroundColor Red
-    Write-Host "   Téléchargez Node.js depuis: https://nodejs.org/" -ForegroundColor Yellow
-    exit 1
+    Write-Host "   ⚠️  Node.js non trouvé" -ForegroundColor Yellow
+    $installNode = Read-Host "   Installer Node.js automatiquement ? (O/n)"
+    if ($installNode -ne 'n' -and $installNode -ne 'N') {
+        if (-not (Install-NodeJS)) {
+            exit 1
+        }
+    } else {
+        Write-Host "❌ Node.js est requis pour continuer" -ForegroundColor Red
+        exit 1
+    }
 }
 
-# Vérification de FFmpeg (optionnel)
-Write-Host "🔍 Vérification de FFmpeg..." -ForegroundColor Yellow
+# Vérification de FFmpeg
+Write-Host "3️⃣  FFmpeg..." -ForegroundColor Yellow
 try {
     $ffmpegVersion = ffmpeg -version 2>&1 | Select-Object -First 1
-    Write-Host "✅ FFmpeg trouvé: $ffmpegVersion" -ForegroundColor Green
+    Write-Host "   ✅ FFmpeg trouvé: $ffmpegVersion" -ForegroundColor Green
 } catch {
-    Write-Host "⚠️  FFmpeg non trouvé (optionnel)" -ForegroundColor Yellow
-    Write-Host "   Les miniatures seront récupérées depuis TMDb uniquement" -ForegroundColor Yellow
-    Write-Host "   Pour installer FFmpeg, exécutez: python .utils\check_and_install_ffmpeg.py" -ForegroundColor Yellow
+    Write-Host "   ⚠️  FFmpeg non trouvé (recommandé)" -ForegroundColor Yellow
+    $installFFmpeg = Read-Host "   Installer FFmpeg automatiquement ? (O/n)"
+    if ($installFFmpeg -ne 'n' -and $installFFmpeg -ne 'N') {
+        Install-FFmpeg | Out-Null
+    } else {
+        Write-Host "   ℹ️  Vous pourrez l'installer plus tard" -ForegroundColor Cyan
+    }
 }
 
 Write-Host ""
@@ -309,41 +409,277 @@ language: fr
 Write-Host ""
 Write-Host "✨ Installation terminée avec succès!" -ForegroundColor Green
 Write-Host ""
-Write-Host "📝 Prochaines étapes:" -ForegroundColor Cyan
-Write-Host "   1. Configurez votre clé API TMDb (OBLIGATOIRE)" -ForegroundColor Yellow
-Write-Host "      → Exécutez: .\.config\setup-tmdb-key.ps1" -ForegroundColor White
-Write-Host "      → Guide complet: .docs\GUIDE_TMDB_API_KEY.md" -ForegroundColor White
+
+# ═══════════════════════════════════════════════════════════════
+# CONFIGURATION AUTOMATIQUE TMDB
+# ═══════════════════════════════════════════════════════════════
+
+Write-Host "╔════════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
+Write-Host "║                                                                ║" -ForegroundColor Cyan
+Write-Host "║          🔑 Configuration de la Clé API TMDb                  ║" -ForegroundColor Cyan
+Write-Host "║                    (OBLIGATOIRE)                               ║" -ForegroundColor Cyan
+Write-Host "║                                                                ║" -ForegroundColor Cyan
+Write-Host "╚════════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "   2. Éditez settings.yaml pour configurer vos répertoires vidéo" -ForegroundColor White
-Write-Host ""
-Write-Host "   3. Lancez Homeflix:" -ForegroundColor White
-Write-Host "      → .\start-homeflix-app.ps1  (Application native - recommandé)" -ForegroundColor Cyan
-Write-Host "      → .\homeflix.ps1            (Mode navigateur)" -ForegroundColor White
-Write-Host ""
-Write-Host "📚 Documentation importante:" -ForegroundColor Cyan
-Write-Host "   • README_APP.md - Guide application de bureau" -ForegroundColor White
-Write-Host "   • .docs\GUIDE_TMDB_API_KEY.md - Configuration de la clé API" -ForegroundColor White
-Write-Host "   • .docs\TMDB_TERMS_SUMMARY.md - Conditions d'utilisation TMDb" -ForegroundColor White
-Write-Host "   • LICENSE - Licence MIT du projet" -ForegroundColor White
+Write-Host "TMDb permet d'afficher les affiches, synopsis et métadonnées de vos films." -ForegroundColor White
+Write-Host "La clé API est GRATUITE pour usage personnel." -ForegroundColor Green
 Write-Host ""
 
-# Proposer de créer les raccourcis
-Write-Host "🔗 Créer des raccourcis sur le bureau ? (o/N)" -ForegroundColor Yellow
-$createShortcuts = Read-Host
-if ($createShortcuts -eq 'o' -or $createShortcuts -eq 'O') {
+# Vérifier si une clé existe déjà
+$existingKey = $null
+if (Test-Path "$projectRoot\settings.yaml") {
+    $content = Get-Content "$projectRoot\settings.yaml" -Raw
+    if ($content -match "tmdb_api_key:\s*'?([a-f0-9]{32})'?") {
+        $existingKey = $matches[1]
+    }
+}
+
+if ($existingKey) {
+    Write-Host "✅ Clé TMDb déjà configurée: $($existingKey.Substring(0,8))..." -ForegroundColor Green
     Write-Host ""
-    if (Test-Path "$projectRoot\.config\create_shortcuts.ps1") {
-        & "$projectRoot\.config\create_shortcuts.ps1"
+    $reconfigureTmdb = Read-Host "Reconfigurer la clé TMDb ? (o/N)"
+    if ($reconfigureTmdb -ne 'o' -and $reconfigureTmdb -ne 'O') {
+        Write-Host "ℹ️  Configuration TMDb conservée" -ForegroundColor Cyan
+        $skipTmdb = $true
     } else {
-        Write-Host "⚠️  Script de création de raccourcis introuvable" -ForegroundColor Yellow
+        $skipTmdb = $false
+    }
+} else {
+    $skipTmdb = $false
+}
+
+if (-not $skipTmdb) {
+    Write-Host "📋 Options de configuration TMDb:" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  [1] 🌐 Ouvrir le guide et saisir la clé maintenant (RECOMMANDÉ)" -ForegroundColor White
+    Write-Host "  [2] ⏭️  Configurer plus tard" -ForegroundColor Gray
+    Write-Host ""
+    $tmdbChoice = Read-Host "Votre choix (1/2)"
+    
+    if ($tmdbChoice -eq "1") {
+        Write-Host ""
+        Write-Host "📋 Instructions rapides:" -ForegroundColor Yellow
+        Write-Host "1. Je vais ouvrir la page d'inscription TMDb dans votre navigateur" -ForegroundColor White
+        Write-Host "2. Créez un compte (gratuit, 2 minutes)" -ForegroundColor White
+        Write-Host "3. Confirmez votre email" -ForegroundColor White
+        Write-Host "4. Allez sur: https://www.themoviedb.org/settings/api" -ForegroundColor White
+        Write-Host "5. Cliquez 'Request an API Key' → 'Developer'" -ForegroundColor White
+        Write-Host "6. Remplissez le formulaire (usage personnel)" -ForegroundColor White
+        Write-Host "7. Copiez la clé API (v3 auth) - 32 caractères" -ForegroundColor White
+        Write-Host ""
+        
+        $openBrowser = Read-Host "Ouvrir la page d'inscription TMDb maintenant ? (O/n)"
+        if ($openBrowser -ne 'n' -and $openBrowser -ne 'N') {
+            Write-Host "🌐 Ouverture du navigateur..." -ForegroundColor Cyan
+            Start-Process "https://www.themoviedb.org/signup"
+            Write-Host ""
+            Write-Host "⏱️  Prenez le temps de créer votre compte et d'obtenir la clé API..." -ForegroundColor Yellow
+            Write-Host "📚 Guide détaillé disponible: .docs\GUIDE_TMDB_API_KEY.md" -ForegroundColor Gray
+            Write-Host ""
+            Read-Host "Appuyez sur Entrée quand vous avez votre clé API"
+        }
+        
+        Write-Host ""
+        Write-Host "🔑 Entrez votre clé API TMDb (32 caractères):" -ForegroundColor Cyan
+        $tmdbKey = Read-Host
+        
+        # Valider et enregistrer la clé
+        if ($tmdbKey -match '^[a-f0-9]{32}$') {
+            Write-Host "🔍 Validation de la clé..." -ForegroundColor Yellow
+            
+            try {
+                $response = Invoke-RestMethod -Uri "https://api.themoviedb.org/3/configuration?api_key=$tmdbKey" -ErrorAction Stop
+                Write-Host "✅ Clé API valide et fonctionnelle!" -ForegroundColor Green
+                
+                # Enregistrer dans settings.yaml
+                $content = Get-Content "$projectRoot\settings.yaml" -Raw
+                if ($content -match "tmdb_api_key:\s*.*") {
+                    $content = $content -replace "tmdb_api_key:\s*.*", "tmdb_api_key: '$tmdbKey'"
+                } else {
+                    $content += "`ntmdb_api_key: '$tmdbKey'"
+                }
+                Set-Content -Path "$projectRoot\settings.yaml" -Value $content -NoNewline
+                Write-Host "✅ Clé enregistrée dans settings.yaml" -ForegroundColor Green
+            } catch {
+                Write-Host "⚠️  Impossible de valider la clé (problème de connexion)" -ForegroundColor Yellow
+                Write-Host "   La clé sera quand même enregistrée" -ForegroundColor Gray
+                
+                $content = Get-Content "$projectRoot\settings.yaml" -Raw
+                if ($content -match "tmdb_api_key:\s*.*") {
+                    $content = $content -replace "tmdb_api_key:\s*.*", "tmdb_api_key: '$tmdbKey'"
+                } else {
+                    $content += "`ntmdb_api_key: '$tmdbKey'"
+                }
+                Set-Content -Path "$projectRoot\settings.yaml" -Value $content -NoNewline
+                Write-Host "✅ Clé enregistrée dans settings.yaml" -ForegroundColor Green
+            }
+        } else {
+            Write-Host "⚠️  Format de clé invalide (doit être 32 caractères hexadécimaux)" -ForegroundColor Yellow
+            Write-Host "   Vous pourrez la configurer plus tard avec:" -ForegroundColor Gray
+            Write-Host "   .\.config\setup-tmdb-key.ps1" -ForegroundColor White
+        }
+    } else {
+        Write-Host ""
+        Write-Host "ℹ️  Configuration TMDb reportée" -ForegroundColor Cyan
+        Write-Host "   Pour configurer plus tard: .\.config\setup-tmdb-key.ps1" -ForegroundColor Gray
     }
 }
 
 Write-Host ""
-Write-Host "🔧 Configuration TMDb maintenant ? (o/N)" -ForegroundColor Yellow
-$configureTmdb = Read-Host
-if ($configureTmdb -eq 'o' -or $configureTmdb -eq 'O') {
-    Write-Host ""
-    & "$projectRoot\.config\setup-tmdb-key.ps1"
+
+# ═══════════════════════════════════════════════════════════════
+# CONFIGURATION TAILSCALE (ACCÈS DISTANT)
+# ═══════════════════════════════════════════════════════════════
+
+Write-Host "╔════════════════════════════════════════════════════════════════╗" -ForegroundColor Cyan
+Write-Host "║                                                                ║" -ForegroundColor Cyan
+Write-Host "║          🌐 Configuration Tailscale (Accès Distant)           ║" -ForegroundColor Cyan
+Write-Host "║                    (OBLIGATOIRE)                               ║" -ForegroundColor Cyan
+Write-Host "║                                                                ║" -ForegroundColor Cyan
+Write-Host "╚════════════════════════════════════════════════════════════════╝" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Tailscale permet d'accéder à Homeflix depuis n'importe où en toute sécurité." -ForegroundColor White
+Write-Host "C'est comme un VPN privé entre vos appareils (gratuit pour usage personnel)." -ForegroundColor Green
+Write-Host ""
+
+# Vérifier si Tailscale est déjà installé
+$tailscaleInstalled = $false
+try {
+    $tailscaleService = Get-Service -Name "Tailscale" -ErrorAction SilentlyContinue
+    if ($tailscaleService) {
+        $tailscaleInstalled = $true
+        Write-Host "✅ Tailscale est déjà installé" -ForegroundColor Green
+        
+        # Vérifier s'il est connecté
+        try {
+            $tailscaleStatus = & tailscale status 2>&1
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "✅ Tailscale est connecté et actif" -ForegroundColor Green
+                Write-Host ""
+                Write-Host "Votre réseau Tailscale:" -ForegroundColor Cyan
+                Write-Host $tailscaleStatus
+                $skipTailscale = $true
+            } else {
+                Write-Host "⚠️  Tailscale n'est pas connecté" -ForegroundColor Yellow
+                $skipTailscale = $false
+            }
+        } catch {
+            $skipTailscale = $false
+        }
+    }
+} catch {
+    $tailscaleInstalled = $false
 }
+
+if (-not $skipTailscale) {
+    Write-Host "📋 Options Tailscale:" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  [1] 🌐 Installer et configurer Tailscale maintenant (RECOMMANDÉ)" -ForegroundColor White
+    Write-Host "  [2] ⏭️  Installer plus tard (accès local uniquement)" -ForegroundColor Gray
+    Write-Host ""
+    $tailscaleChoice = Read-Host "Votre choix (1/2)"
+    
+    if ($tailscaleChoice -eq "1") {
+        if (-not $tailscaleInstalled) {
+            Write-Host ""
+            Write-Host "📦 Installation de Tailscale..." -ForegroundColor Yellow
+            
+            $tailscaleUrl = "https://pkgs.tailscale.com/stable/tailscale-setup-latest.exe"
+            $tailscaleInstaller = "$env:TEMP\tailscale-setup.exe"
+            
+            try {
+                Write-Host "   Téléchargement..." -ForegroundColor Gray
+                Invoke-WebRequest -Uri $tailscaleUrl -OutFile $tailscaleInstaller -UseBasicParsing
+                
+                Write-Host "   Installation en cours..." -ForegroundColor Gray
+                Write-Host ""
+                Write-Host "   ⚠️  IMPORTANT: Suivez l'assistant d'installation Tailscale" -ForegroundColor Yellow
+                Write-Host ""
+                Start-Process -FilePath $tailscaleInstaller -Wait
+                
+                Write-Host "✅ Tailscale installé!" -ForegroundColor Green
+                Remove-Item $tailscaleInstaller -Force -ErrorAction SilentlyContinue
+            } catch {
+                Write-Host "❌ Erreur lors de l'installation de Tailscale" -ForegroundColor Red
+                Write-Host "   Téléchargez manuellement: https://tailscale.com/download/windows" -ForegroundColor Yellow
+            }
+        }
+        
+        Write-Host ""
+        Write-Host "╔════════════════════════════════════════════════════════════════╗" -ForegroundColor Green
+        Write-Host "║                                                                ║" -ForegroundColor Green
+        Write-Host "║          📖 Guide de Configuration Tailscale                   ║" -ForegroundColor Green
+        Write-Host "║                                                                ║" -ForegroundColor Green
+        Write-Host "╚════════════════════════════════════════════════════════════════╝" -ForegroundColor Green
+        Write-Host ""
+        Write-Host "Sur CET ORDINATEUR (serveur Homeflix):" -ForegroundColor Cyan
+        Write-Host "  1. Cliquez sur l'icône Tailscale dans la barre des tâches" -ForegroundColor White
+        Write-Host "  2. Cliquez 'Log in'" -ForegroundColor White
+        Write-Host "  3. Connectez-vous avec Google, Microsoft ou GitHub" -ForegroundColor White
+        Write-Host "  4. Votre PC recevra une adresse IP Tailscale (ex: 100.x.x.x)" -ForegroundColor White
+        Write-Host ""
+        Write-Host "Sur L'ORDINATEUR DISTANT (client):" -ForegroundColor Cyan
+        Write-Host "  1. Installez Tailscale: https://tailscale.com/download" -ForegroundColor White
+        Write-Host "  2. Connectez-vous avec le MÊME compte" -ForegroundColor White
+        Write-Host "  3. Les deux appareils seront dans le même réseau privé" -ForegroundColor White
+        Write-Host ""
+        Write-Host "ACCÈS À HOMEFLIX à distance:" -ForegroundColor Cyan
+        Write-Host "  • Lancez Homeflix sur ce PC (serveur)" -ForegroundColor White
+        Write-Host "  • Sur l'appareil distant, ouvrez un navigateur" -ForegroundColor White
+        Write-Host "  • Allez sur: http://[IP-TAILSCALE-DU-SERVEUR]:8000" -ForegroundColor White
+        Write-Host "  • L'IP Tailscale s'affichera au lancement de Homeflix" -ForegroundColor White
+        Write-Host ""
+        Write-Host "💡 Astuce: Tailscale fonctionne automatiquement en arrière-plan" -ForegroundColor Yellow
+        Write-Host "    Pas besoin de configuration de routeur ou port forwarding!" -ForegroundColor Yellow
+        Write-Host ""
+        
+        Read-Host "Appuyez sur Entrée pour continuer"
+    } else {
+        Write-Host ""
+        Write-Host "ℹ️  Installation Tailscale reportée" -ForegroundColor Cyan
+        Write-Host "   ⚠️  Homeflix sera accessible uniquement en local (localhost)" -ForegroundColor Yellow
+        Write-Host "   Pour installer plus tard: .\.config\install-tailscale.ps1" -ForegroundColor Gray
+    }
+}
+
+Write-Host ""
+
+# ═══════════════════════════════════════════════════════════════
+# RÉSUMÉ ET PROCHAINES ÉTAPES
+# ═══════════════════════════════════════════════════════════════
+
+Write-Host "╔════════════════════════════════════════════════════════════════╗" -ForegroundColor Green
+Write-Host "║                                                                ║" -ForegroundColor Green
+Write-Host "║          ✅ INSTALLATION TERMINÉE AVEC SUCCÈS!                ║" -ForegroundColor Green
+Write-Host "║                                                                ║" -ForegroundColor Green
+Write-Host "╚════════════════════════════════════════════════════════════════╝" -ForegroundColor Green
+Write-Host ""
+
+Write-Host "📝 Prochaines étapes:" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "1️⃣  Configurer vos dossiers vidéo" -ForegroundColor Yellow
+Write-Host "   → Éditez: settings.yaml" -ForegroundColor White
+Write-Host "   → Ajoutez vos chemins dans 'video_directories'" -ForegroundColor White
+Write-Host ""
+Write-Host "2️⃣  Lancer Homeflix" -ForegroundColor Yellow
+Write-Host "   → Application desktop: .\start-homeflix-app.ps1" -ForegroundColor Cyan
+Write-Host "   → Mode navigateur:    .\homeflix.ps1" -ForegroundColor White
+Write-Host ""
+
+if (-not $existingKey) {
+    Write-Host "⚠️  N'oubliez pas de configurer votre clé TMDb si vous l'avez sautée!" -ForegroundColor Yellow
+    Write-Host "   → .\.config\setup-tmdb-key.ps1" -ForegroundColor White
+    Write-Host ""
+}
+
+if (-not $tailscaleInstalled -or -not $skipTailscale) {
+    Write-Host "⚠️  Pour l'accès distant, configurez Tailscale:" -ForegroundColor Yellow
+    Write-Host "   → .\.config\install-tailscale.ps1" -ForegroundColor White
+    Write-Host ""
+}
+
+Write-Host "📚 Documentation:" -ForegroundColor Cyan
+Write-Host "   • docs/LANCEMENT.md - Guide de démarrage rapide" -ForegroundColor White
+Write-Host "   • docs/GUIDE_UTILISATEUR.md - Guide complet" -ForegroundColor White
+Write-Host "   • docs/FAQ.md - Questions fréquentes" -ForegroundColor White
 Write-Host ""
