@@ -214,7 +214,7 @@ function VideoDetailComponent({ video, onClose, onDelete, onUpdateCache, current
 
   const handleSaveMetadata = async () => {
     try {
-      setSaveMessage("Sauvegarde en cours...");
+      setSaveMessage("💾 Sauvegarde en cours...");
       
       // Préparer les données à sauvegarder
       const dataToSave = {
@@ -252,9 +252,11 @@ function VideoDetailComponent({ video, onClose, onDelete, onUpdateCache, current
       
       // Si l'affiche ou la collection a été mise à jour
       if (posterUpdated || collectionChanged) {
-        // Forcer le rechargement localement
+        // Forcer le rechargement localement de l'affiche
         setCacheKey(Date.now());
-        // Ne PAS recharger le carrousel global
+        setForceImageReload(prev => prev + 1);
+        
+        // Ne PAS recharger le carrousel global pour éviter de perdre le contexte
         
         if (posterUpdated && collectionChanged) {
           setSaveMessage("✓ Affiche et collection mises à jour !");
@@ -280,16 +282,32 @@ function VideoDetailComponent({ video, onClose, onDelete, onUpdateCache, current
 
   const handleEnrichFromTMDb = async () => {
     try {
+      setSaveMessage("� Sauvegarde des modifications...");
+      
+      // Ne sauvegarder que le titre et l'année s'ils ont été modifiés
+      const changesExist = 
+        (editedMetadata.title && editedMetadata.title !== video.title) ||
+        (editedMetadata.year && editedMetadata.year !== video.year);
+      
+      if (changesExist) {
+        setSaveMessage("💾 Sauvegarde du titre/année...");
+        
+        const dataToSave = {};
+        if (editedMetadata.title && editedMetadata.title !== video.title) {
+          dataToSave.title = editedMetadata.title;
+        }
+        if (editedMetadata.year && editedMetadata.year !== video.year) {
+          dataToSave.year = editedMetadata.year;
+        }
+        
+        const saveResponse = await updateVideo(video.id, dataToSave);
+        if (saveResponse.title !== undefined) video.title = saveResponse.title;
+        if (saveResponse.year !== undefined) video.year = saveResponse.year;
+      }
+      
+      // Enrichir depuis TMDb avec le titre actuel en BDD
       setSaveMessage("🔍 Recherche sur TMDb...");
       
-      // D'abord, sauvegarder les modifications actuelles (titre/année)
-      const saveResponse = await updateVideo(video.id, editedMetadata);
-      
-      // Mettre à jour avec la réponse (qui contient le path)
-      if (saveResponse.title !== undefined) video.title = saveResponse.title;
-      if (saveResponse.year !== undefined) video.year = saveResponse.year;
-      
-      // Puis enrichir depuis TMDb avec le nouveau titre/année
       const result = await enrichVideoFromTMDb(video.id);
       
       if (result.ok && result.video) {
@@ -302,6 +320,7 @@ function VideoDetailComponent({ video, onClose, onDelete, onUpdateCache, current
         if (result.video.cast !== undefined) video.cast = result.video.cast;
         if (result.video.vote_average !== undefined) video.vote_average = result.video.vote_average;
         if (result.video.poster_path !== undefined) video.poster_path = result.video.poster_path;
+        if (result.video.collection_name !== undefined) video.collection = result.video.collection_name;
         
         setEditedMetadata({
           title: result.video.title,
@@ -309,8 +328,13 @@ function VideoDetailComponent({ video, onClose, onDelete, onUpdateCache, current
           genre: result.video.genre || "",
           overview: result.video.overview || "",
           cast: result.video.cast || "",
+          collection_name: result.video.collection || "",
           posterUrl: "",
         });
+        
+        // Forcer le rechargement de l'affiche si elle a changé
+        setCacheKey(Date.now());
+        setForceImageReload(prev => prev + 1);
         
         // Ne PAS recharger le carousel - on met juste à jour l'affichage local
         // Désactiver pour éviter de perdre le contexte visuel
@@ -327,13 +351,13 @@ function VideoDetailComponent({ video, onClose, onDelete, onUpdateCache, current
         }, 2000);
       } else {
         setSaveMessage("⚠️ " + (result.message || "Aucune métadonnée trouvée"));
+        setTimeout(() => setSaveMessage(""), 5000);
       }
       
-      setTimeout(() => setSaveMessage(""), 3000);
     } catch (error) {
       console.error("Erreur enrichissement TMDb:", error);
       setSaveMessage("✗ Erreur lors de la recherche TMDb");
-      setTimeout(() => setSaveMessage(""), 3000);
+      setTimeout(() => setSaveMessage(""), 5000);
     }
   };
 
@@ -374,13 +398,14 @@ function VideoDetailComponent({ video, onClose, onDelete, onUpdateCache, current
       console.log("✅ Résultat:", result);
       
       if (result.ok && result.video) {
-        // Mettre à jour les données de la vidéo
+        // Mettre à jour les données de la vidéo localement
         if (result.video.title !== undefined) video.title = result.video.title;
         if (result.video.year !== undefined) video.year = result.video.year;
         if (result.video.genre !== undefined) video.genre = result.video.genre;
         if (result.video.overview !== undefined) video.overview = result.video.overview;
         if (result.video.cast !== undefined) video.cast = result.video.cast;
         if (result.video.vote_average !== undefined) video.vote_average = result.video.vote_average;
+        if (result.video.collection_name !== undefined) video.collection = result.video.collection_name;
         
         setEditedMetadata({
           title: result.video.title,
@@ -388,11 +413,13 @@ function VideoDetailComponent({ video, onClose, onDelete, onUpdateCache, current
           genre: result.video.genre || "",
           overview: result.video.overview || "",
           cast: result.video.cast || "",
+          collection_name: result.video.collection || "",
           posterUrl: "",
         });
         
         // Forcer le rechargement de l'affiche localement
         setCacheKey(Date.now());
+        setForceImageReload(prev => prev + 1);
         
         // Ne PAS recharger le carousel - on met juste à jour l'affichage local
         // Désactiver pour éviter de perdre le contexte visuel
@@ -410,10 +437,9 @@ function VideoDetailComponent({ video, onClose, onDelete, onUpdateCache, current
           setSaveMessage("");
         }, 2000);
       } else {
-        setSaveMessage("⚠️ " + (result.message || "Erreur inconnue"));
+        setSaveMessage("⚠️ " + (result.error || result.message || "Erreur inconnue"));
+        setTimeout(() => setSaveMessage(""), 5000);
       }
-      
-      setTimeout(() => setSaveMessage(""), 3000);
     } catch (error) {
       console.error("❌ Erreur enrichissement depuis URL:", error);
       console.error("❌ Stack:", error.stack);

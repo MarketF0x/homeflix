@@ -499,6 +499,7 @@ def enrich_single_video(video_id: int):
                 "cast": video.cast,
                 "vote_average": video.vote_average,
                 "poster_path": video.poster_path,
+                "collection_name": video.collection,
             }
         }
 
@@ -538,7 +539,7 @@ def enrich_from_tmdb_url(video_id: int, payload: dict = Body(...)):
         logger.info(f"DEBUG: type(api_key) = {type(api_key)}")
         
         if not api_key:
-            return {"ok": False, "error": "Clé API TMDb non configurée"}
+            raise HTTPException(status_code=400, detail="Clé API TMDb non configurée dans les paramètres")
         
         # Récupérer les détails depuis TMDb
         try:
@@ -572,6 +573,13 @@ def enrich_from_tmdb_url(video_id: int, payload: dict = Body(...)):
                 cast = credits_data.get("cast", [])[:5]
                 if cast:
                     video.cast = ", ".join([actor["name"] for actor in cast])
+            
+            # Collection (uniquement pour les films)
+            if media_type == "movie":
+                belongs_to_collection = data.get("belongs_to_collection")
+                if belongs_to_collection:
+                    video.collection = belongs_to_collection.get("name")
+                    logger.info(f"Collection trouvée: {video.collection}")
             
             # Télécharger le poster
             poster_path = data.get("poster_path")
@@ -607,6 +615,7 @@ def enrich_from_tmdb_url(video_id: int, payload: dict = Body(...)):
                     "cast": video.cast,
                     "vote_average": video.vote_average,
                     "poster_path": video.poster_path,
+                    "collection_name": video.collection,
                 }
             }
             

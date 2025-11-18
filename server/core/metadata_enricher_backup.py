@@ -69,59 +69,24 @@ def search_tmdb(title: str, year: Optional[int] = None, api_key: str = "") -> Op
                 results = data.get("results") or []
         
         if not results:
-            logger.warning(f"❌ Aucun résultat TMDB pour '{title}' ({year})")
             return None
         
-        logger.info(f"📊 {len(results)} résultats trouvés sur TMDB pour '{title}'")
-        
-        # Fonction de scoring AMÉLIORÉE pour trouver le meilleur résultat
+        # Fonction de scoring pour trouver le meilleur résultat
         def score_result(item):
             s = 0
             media_type = item.get("media_type", "")
-            item_title = (item.get("title") or item.get("name") or "").lower()
-            search_title_lower = title.lower()
             
-            # Récupérer l'année de l'item pour les logs
-            item_year = None
-            date = item.get("release_date") or item.get("first_air_date")
-            if date and len(date) >= 4:
-                try:
-                    item_year = int(date[:4])
-                except Exception:
-                    pass
-            
-            # 1. CORRESPONDANCE EXACTE DU TITRE = +10 points (très important!)
-            if item_title == search_title_lower:
-                s += 10
-            elif search_title_lower in item_title or item_title in search_title_lower:
-                s += 5
-            
-            # 2. Priorité aux films sur les séries
+            # Priorité aux films et séries
             if media_type == "movie":
                 s += 3
             elif media_type == "tv":
                 s += 2
             
-            # 3. Popularité (max +3 points)
+            # Popularité
             popularity = item.get("popularity", 0)
-            s += min(popularity / 20, 3)
+            s += min(popularity / 10, 2)
             
-            # 4. ANNÉE EXACTE = +10 points (très important!)
-            if year and item_year == year:
-                s += 10
-            elif year and item_year and abs(item_year - year) <= 1:
-                s += 5
-            
-            return s
-        
-        # Calculer les scores pour tous les résultats
-        scored_results = [(score_result(item), item) for item in results]
-        scored_results.sort(key=lambda x: x[0], reverse=True)
-        
-        # Afficher le TOP 3 pour debug
-        logger.info(f"🏆 Top 3 résultats TMDB :")
-        for i, (score, item) in enumerate(scored_results[:3], 1):
-            item_title = item.get("title") or item.get("name")
+            # Boost si année correspond
             item_year = None
             date = item.get("release_date") or item.get("first_air_date")
             if date and len(date) >= 4:
@@ -129,27 +94,22 @@ def search_tmdb(title: str, year: Optional[int] = None, api_key: str = "") -> Op
                     item_year = int(date[:4])
                 except Exception:
                     pass
-            media_type = item.get("media_type")
-            tmdb_url = f"https://www.themoviedb.org/{media_type}/{item.get('id')}"
-            logger.info(f"   {i}. [{media_type}] {item_title} ({item_year}) - Score: {score:.1f}")
-            logger.info(f"      📎 {tmdb_url}")
+            
+            if year and item_year == year:
+                s += 5
+            elif year and item_year and abs(item_year - year) <= 1:
+                s += 2
+            
+            return s
         
-        # Sélectionner le meilleur résultat
-        best_score, best = scored_results[0]
+        best = max(results, key=score_result)
         
         # Récupère les détails complets
         media_type = best.get("media_type")
         media_id = best.get("id")
         
         if not media_id or media_type not in ["movie", "tv"]:
-            logger.error(f"❌ Type de média invalide: {media_type}")
             return None
-        
-        # Afficher l'URL TMDB du film sélectionné
-        selected_url = f"https://www.themoviedb.org/{media_type}/{media_id}"
-        selected_title = best.get("title") or best.get("name")
-        logger.info(f"✅ Film sélectionné (score {best_score:.1f}): {selected_title}")
-        logger.info(f"   🔗 URL TMDB: {selected_url}")
         
         # Endpoint de détails
         detail_url = f"https://api.themoviedb.org/3/{media_type}/{media_id}"
