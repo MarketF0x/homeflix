@@ -1183,24 +1183,17 @@ def stream_video_transcode(path: str, audio_track: int = 0, subtitle_track: int 
         
         try:
             while True:
-                # ✅ STRATÉGIE DE CHUNKS OPTIMISÉE POUR MP4 FRAGMENTÉ :
-                # - Chunk 1 : 2 MB (CRITIQUE - doit contenir moov+moof+mdat boxes complets)
-                # - Chunks 2-5 : 1 MB (buffering initial rapide)
-                # - Chunks 6+ : 2 MB (streaming stable)
-                # 
-                # ⚠️ IMPORTANT : Le premier chunk DOIT être assez gros pour contenir :
-                #    - moov box (métadonnées globales, même vide avec empty_moov)
-                #    - Premier moof box (fragment metadata + timing)
-                #    - Premier mdat box complet (données vidéo/audio du fragment)
-                # 
-                # 🔧 CORRECTION : Augmenté de 512 KB → 2 MB car certains fichiers AVI/MPEG4
-                #    nécessitent plus de données pour générer un segment MP4 valide
+                # ✅ STRATÉGIE DE CHUNKS OPTIMISÉE POUR STREAMING LONG
+                # 🔧 NOUVELLE APPROCHE : Chunks constants de 512 KB après l'init
+                # - Réduit la latence de buffering
+                # - Évite les blocages après plusieurs minutes
+                # - Meilleur équilibre performance/réactivité
                 if chunk_count == 0:
-                    chunk_size = 2 * 1024 * 1024  # 2 MB - Premier chunk DOIT contenir init segment + premier fragment complet
-                elif chunk_count < 5:
-                    chunk_size = 1024 * 1024  # 1 MB - Buffer initial
+                    # Premier chunk : 2 MB pour garantir moov+moof+mdat complet
+                    chunk_size = 2 * 1024 * 1024
                 else:
-                    chunk_size = 2 * 1024 * 1024  # 2 MB - Streaming normal
+                    # Tous les autres : 512 KB constant (optimal pour streaming)
+                    chunk_size = 512 * 1024
                 
                 chunk = process.stdout.read(chunk_size)
                     

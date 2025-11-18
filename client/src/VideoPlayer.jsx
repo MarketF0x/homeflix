@@ -6,8 +6,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
   // Qualité dynamique pour le transcodage (fast si buffer faible)
   const [transcodeQuality, setTranscodeQuality] = useState("medium");
   // LOG CRITIQUE : Afficher le profil reçu
-  console.log("🎬 VideoPlayer monté - Profil actuel:", currentProfile?.name, "ID:", currentProfile?.id);
-  
+
   const { language } = useI18n(); // Récupère la langue choisie par l'utilisateur
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);  // Initialisé à 0, chargé depuis l'API
@@ -71,26 +70,16 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
   const videoUrl = useTranscode ? transcodeUrl : directUrl;
   
   // 🔍 Log de diagnostic des URLs de streaming
-  console.log('🎬 VideoPlayer URLs:', {
-    baseUrl,
-    directUrl: directUrl.substring(0, 100) + '...',
-    transcodeUrl: transcodeUrl.substring(0, 100) + '...',
-    videoUrl: videoUrl.substring(0, 100) + '...',
-    useTranscode
-  });
 
   // Fonction de sauvegarde de la progression (définie avant les useEffect pour être accessible)
   const saveProgress = useCallback(async (position) => {
     try {
       const profileId = currentProfile?.id;
       if (!profileId) {
-        console.warn("⚠️ Aucun profil sélectionné, progression non sauvegardée");
-        console.log("currentProfile:", currentProfile);
+
         return;
       }
-      
-      console.log(`💾 Sauvegarde progression: vidéo ${video.id}, position ${position}s, profil ${profileId}`);
-      
+
       const response = await fetch(`${API}/progress`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -102,12 +91,12 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
       });
       
       if (!response.ok) {
-        console.error("❌ Erreur serveur:", response.status, await response.text());
+
       } else {
-        console.log("✅ Progression sauvegardée");
+
       }
     } catch (e) {
-      console.error("❌ Erreur sauvegarde progression:", e);
+
     }
   }, [currentProfile?.id, video.id]);
 
@@ -125,7 +114,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
   useEffect(() => {
     const handlePopState = (e) => {
       e.preventDefault();
-      console.log("🔙 Bouton retour - Fermeture du lecteur vidéo");
+
       onClose();
     };
 
@@ -153,7 +142,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
           }
         }
       } catch (error) {
-        console.warn('⚠️ Erreur chargement position:', error);
+
       }
     };
     
@@ -164,11 +153,11 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
   useEffect(() => {
     const fetchTracks = async () => {
       try {
-        console.log('🔍 Chargement des pistes pour:', video.path);
+
         const response = await fetch(`${baseUrl}/api/stream/tracks?path=${encodeURIComponent(video.path)}`);
         if (response.ok) {
           const tracks = await response.json();
-          console.log('✅ Pistes chargées:', tracks);
+
           setAvailableTracks(tracks);
           
           // Auto-sélectionner la première piste audio française si disponible
@@ -179,10 +168,10 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
             setSelectedAudioTrack(tracks.audio[0].index);
           }
         } else {
-          console.error('❌ Erreur réponse tracks:', response.status);
+
         }
       } catch (error) {
-        console.warn('⚠️ Erreur chargement pistes:', error);
+
       }
     };
     
@@ -194,8 +183,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
   useEffect(() => {
     if (videoRef.current) {
       const currentPos = videoRef.current.currentTime || 0;
-      
-      console.log('🔄 Rechargement vidéo - Mode:', useTranscode ? 'TRANSCODAGE' : 'DIRECT');
+
       setIsLoading(true);
       setLoadError(null);
       
@@ -205,17 +193,17 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
       videoRef.current.load();
       
       const handleCanPlay = () => {
-        console.log('✅ Vidéo prête après rechargement');
+
         if (currentPos > 0) {
           videoRef.current.currentTime = currentPos;
         }
         setIsLoading(false);
-        videoRef.current.play().catch(err => console.warn('Erreur play après rechargement:', err));
+        videoRef.current.play().catch(() => {});
         videoRef.current.removeEventListener('canplay', handleCanPlay);
       };
       
       const handleError = () => {
-        console.error('❌ Erreur lors du rechargement');
+
         setIsLoading(false);
         videoRef.current.removeEventListener('error', handleError);
       };
@@ -285,17 +273,15 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
           enabled: track.enabled
         }));
         setAudioTracks(trackList);
-        console.log('🔊 Pistes audio détectées:', trackList);
-        
+
         // AUTO-SÉLECTION : Prioriser la langue choisie dans les paramètres
         autoSelectPreferredAudioTrack(tracks, trackList);
       } else {
-        console.log('⚠️ Aucune piste audio détectée !');
-        
+
         // PROBLÈME : Pas de piste audio détectée
         // Solution : Basculer vers transcodage FFmpeg
         if (!useTranscode) {
-          console.log('🔄 Activation du transcodage FFmpeg pour corriger l\'audio...');
+
           setLoadInfo('🔄 Activation transcodage audio...');
           setUseTranscode(true);
           setRetryCount(0);
@@ -348,9 +334,9 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
         // Activer la piste préférée
         tracks[preferredTrackIndex].enabled = true;
         setCurrentAudioTrack(preferredTrackIndex); // Mettre à jour l'état pour l'interface
-        console.log(`✅ Piste audio ${language.toUpperCase()} auto-sélectionnée: ${trackList[preferredTrackIndex].label} (index ${preferredTrackIndex})`);
+
       } else {
-        console.log(`ℹ️ Aucune piste ${language.toUpperCase()} trouvée, utilisation de la piste par défaut`);
+
         setCurrentAudioTrack(0);
       }
     };
@@ -366,8 +352,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
           kind: track.kind
         }));
         setSubtitleTracks(trackList);
-        console.log('📝 Sous-titres détectés:', trackList);
-        
+
         // AUTO-SÉLECTION : Prioriser les sous-titres dans la langue choisie
         autoSelectPreferredSubtitles(tracks, trackList);
       }
@@ -412,9 +397,9 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
         }
         // Le sous-titre préféré est prêt mais pas affiché par défaut
         setCurrentSubtitleTrack(preferredSubIndex); // Préparer pour activation facile
-        console.log(`✅ Sous-titres ${language.toUpperCase()} disponibles: ${trackList[preferredSubIndex].label} (index ${preferredSubIndex})`);
+
       } else {
-        console.log(`ℹ️ Aucun sous-titre ${language.toUpperCase()} disponible`);
+
         setCurrentSubtitleTrack(-1);
       }
     };
@@ -427,41 +412,32 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
       // Mettre à jour la durée dès que les métadonnées sont chargées
       if (!isNaN(videoElement.duration) && isFinite(videoElement.duration)) {
         setDuration(videoElement.duration);
-        console.log(`⏱️ Durée vidéo: ${Math.floor(videoElement.duration)}s`);
+
       }
       
       // DÉTECTION PROBLÈME VIDÉO : Vérifier si la vidéo a une dimension valide
       // Si width/height = 0, le codec vidéo n'est pas supporté
       if (videoElement.videoWidth === 0 || videoElement.videoHeight === 0) {
-        console.error('❌ CODEC VIDÉO NON SUPPORTÉ : Dimensions = 0x0');
-        console.error(`   Chemin: ${video.path}`);
-        console.error(`   Extension: ${videoExt}`);
-        console.error(`   Mode actuel: ${useTranscode ? 'TRANSCODAGE' : 'DIRECT'}`);
-        
+
         if (!useTranscode && retryCountRef.current === 0) {
-          console.log('🔄 Activation automatique du transcodage pour codec incompatible...');
+
           setLoadInfo('🔄 Codec vidéo incompatible détecté - activation transcodage...');
           setUseTranscode(true);
           retryCountRef.current = 1; // Marquer qu'on a essayé
           return;
         } else if (useTranscode && retryCountRef.current < 2) {
           // Tenter le streaming direct en dernier recours
-          console.log('🔄 ÉCHEC TRANSCODAGE - Tentative streaming DIRECT en dernier recours...');
+
           setLoadInfo('🔄 Échec transcodage - tentative lecture directe...');
           setUseTranscode(false);
           retryCountRef.current = 2;
           return;
         } else {
           setLoadError('❌ Erreur : Impossible de lire cette vidéo. Le fichier est probablement corrompu ou utilise un codec non supporté par FFmpeg.');
-          console.error('❌ ÉCHEC COMPLET - Vérifier les logs serveur FFmpeg');
-          console.error('   📋 Suggestions:');
-          console.error('      1. Vérifier que FFmpeg est installé: ffmpeg -version');
-          console.error('      2. Vérifier les logs serveur pour voir les erreurs FFmpeg');
-          console.error('      3. Le fichier source est peut-être corrompu');
+
         }
       } else {
-        console.log(`✅ Dimensions vidéo OK: ${videoElement.videoWidth}x${videoElement.videoHeight}`);
-        console.log(`✅ Codec vidéo compatible - Mode: ${useTranscode ? 'TRANSCODAGE' : 'DIRECT'}`);
+
         retryCountRef.current = 0; // Réinitialiser si la vidéo fonctionne
       }
     };
@@ -470,7 +446,6 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
 
     // ✅ OPTIMISATION BUFFER : Toujours preload auto pour maximiser le buffering
     videoElement.preload = "auto";
-    console.log("📊 Preload forcé sur auto pour maximiser le buffering");
 
     // ✅ MONITORING BUFFER AVANCÉ : Surveillance du buffer range
     const updateBufferProgress = () => {
@@ -483,7 +458,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
           // Afficher un log utilisateur si le buffer est faible
           if (bufferPercent < 10 && !videoElement.paused && videoElement.readyState < 3) {
             setLoadInfo("⚠️ Votre connexion semble lente, le chargement peut prendre du temps. Merci de patienter...");
-            console.warn(`⚠️ Buffer faible (${bufferPercent.toFixed(1)}%) - risque de blocage`);
+
             // Compteur de buffer faible
             if (!window._bufferLowCount) window._bufferLowCount = 0;
             window._bufferLowCount++;
@@ -509,25 +484,19 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
       const error = videoElement.error;
       
       if (error) {
-        console.error('❌ Erreur vidéo détectée:');
-        console.error(`   Code: ${error.code} (${getErrorCodeName(error.code)})`);
-        console.error(`   Message: ${error.message}`);
-        console.error(`   Position: ${videoElement.currentTime}s`);
-        console.error(`   Mode: ${useTranscode ? 'TRANSCODAGE' : 'DIRECT'}`);
-        
+
         // MEDIA_ERR_SRC_NOT_SUPPORTED (code 4) ou MEDIA_ERR_DECODE (code 3)
         if (error.code === 3 || error.code === 4) {
-          console.error('❌ Erreur de décodage ou format non supporté');
-          
+
           if (!useTranscode && retryCountRef.current === 0) {
-            console.log('🔄 Basculement automatique vers TRANSCODAGE...');
+
             setLoadInfo('🔄 Format non supporté - activation transcodage...');
             setUseTranscode(true);
             retryCountRef.current = 1;
             return;
           } else if (useTranscode && retryCountRef.current < 2) {
             // Si le transcodage échoue, tenter le streaming direct en dernier recours
-            console.log('🔄 ÉCHEC TRANSCODAGE - Tentative streaming DIRECT en dernier recours...');
+
             setLoadInfo('🔄 Échec transcodage - tentative lecture directe...');
             setUseTranscode(false);
             retryCountRef.current = 2; // Marquer qu'on a tout essayé
@@ -535,22 +504,18 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
           } else {
             // Tout a échoué
             setLoadError('❌ Erreur : Impossible de lire cette vidéo. Le fichier est probablement corrompu ou utilise un codec non supporté.');
-            console.error('❌ ÉCHEC TOTAL - Ni le streaming direct ni le transcodage ne fonctionnent');
-            console.error(`   Extension: ${videoExt}`);
-            console.error(`   Chemin: ${video.path}`);
+
             return;
           }
         }
       }
-      
-      console.error('❌ Erreur réseau ou autre:', e);
-      
+
       // Calculer délai exponentiel : 1s, 2s, 4s, 8s, 16s max
       const delay = Math.min(retryDelayRef.current, 16000);
       retryCountRef.current += 1;
       
       if (retryCountRef.current <= 5) {
-        console.log(`🔄 Retry ${retryCountRef.current}/5 dans ${delay}ms...`);
+
         setLoadInfo(`🔄 Reconnexion en cours (${retryCountRef.current}/5)...`);
         
         setTimeout(() => {
@@ -559,7 +524,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
           
           videoElement.addEventListener('loadeddata', () => {
             videoElement.currentTime = currentPos;
-            videoElement.play().catch(e => console.error('Erreur replay:', e));
+            videoElement.play().catch(() => {});
           }, { once: true });
           
           retryDelayRef.current *= 2; // Doubler le délai pour le prochain retry
@@ -586,13 +551,13 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
 
     // ✅ MEILLEURE GESTION DES ÉTATS DE CHARGEMENT
     const handleCanPlay = () => {
-      console.log('✅ canplay - La vidéo peut commencer à jouer');
+
       setIsLoading(false);
       setLoadInfo(null);
     };
 
     const handleCanPlayThrough = () => {
-      console.log('✅ canplaythrough - La vidéo peut être jouée sans interruption');
+
       setIsLoading(false);
       setLoadInfo(null);
       retryCountRef.current = 0; // Réinitialiser les retries
@@ -600,23 +565,21 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
     };
 
     const handleWaiting = () => {
-      console.log('⏳ waiting - La vidéo est en attente de données...');
+
       setIsLoading(true);
     };
 
     const handlePlaying = () => {
-      console.log('▶️ playing - La vidéo a commencé à jouer');
+
       setIsPlaying(true);
       setIsLoading(false);
       setLoadInfo(null);
       
       // Vérification supplémentaire du codec après le début de lecture
       if (videoElement.videoWidth === 0 || videoElement.videoHeight === 0) {
-        console.error('❌ CODEC DÉFAILLANT détecté pendant la lecture (dimensions = 0x0)');
-        console.error(`   CurrentTime: ${videoElement.currentTime}s, ReadyState: ${videoElement.readyState}`);
-        
+
         if (!useTranscode) {
-          console.log('🔄 Basculement automatique vers TRANSCODAGE...');
+
           setLoadInfo('🔄 Problème de codec - passage en transcodage...');
           setUseTranscode(true);
         }
@@ -624,18 +587,17 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
     };
 
     const handlePause = () => {
-      console.log('⏸️ pause - La vidéo est en pause');
+
       setIsPlaying(false);
     };
 
     const handleStalled = () => {
-      console.warn('⚠️ stalled - Le téléchargement des données est bloqué');
-      console.warn(`   Position: ${videoElement.currentTime}s, ReadyState: ${videoElement.readyState}, NetworkState: ${videoElement.networkState}`);
+
       setIsLoading(true);
     };
 
     const handleSuspend = () => {
-      console.log('⏸️ suspend - Le téléchargement a été suspendu');
+
     };
 
     videoElement.addEventListener('canplay', handleCanPlay);
@@ -654,7 +616,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
       if (playPromise !== undefined) {
         playPromise
           .then(() => {
-            console.log('✅ Lecture automatique réussie');
+
             setIsPlaying(true);
             detectAudioTracks(); // Détecter les pistes après le début de lecture
             detectSubtitles();
@@ -662,10 +624,9 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
             // Vérification supplémentaire après 3 secondes de lecture
             setTimeout(() => {
               if (videoElement && (videoElement.videoWidth === 0 || videoElement.videoHeight === 0)) {
-                console.error('❌ CODEC VIDÉO NON SUPPORTÉ détecté après lecture');
-                
+
                 if (!useTranscode && retryCountRef.current === 0) {
-                  console.log('🔄 Basculement vers transcodage...');
+
                   setLoadInfo('🔄 Problème vidéo détecté - activation transcodage...');
                   setUseTranscode(true);
                   retryCountRef.current = 1;
@@ -674,7 +635,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
             }, 3000);
           })
           .catch((error) => {
-            console.warn('⚠️ Lecture automatique bloquée par le navigateur:', error);
+
             setIsLoading(false);
             // Le navigateur bloque l'autoplay, l'utilisateur devra cliquer
           });
@@ -706,21 +667,18 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
         
         if (!isBuffering && videoElement.currentTime === lastTime) {
           stalledCount++;
-          console.warn(`⚠️ Vidéo bloquée détectée (${stalledCount}/${stalledThreshold}) - Position: ${videoElement.currentTime}s, ReadyState: ${videoElement.readyState}, NetworkState: ${videoElement.networkState}`);
-          console.warn(`   Buffer: ${videoElement.buffered.length > 0 ? videoElement.buffered.end(0) : 0}s, Erreur: ${videoElement.error ? videoElement.error.message : 'Aucune'}`);
-          
+
           if (stalledCount >= stalledThreshold) {
             // Blocage confirmé après stalledThreshold vérifications
-            console.error('❌ VIDÉO BLOQUÉE - Tentative de déblocage automatique...');
+
             setIsStalled(true);
             setStalledTime(stalledCount * 2);
             
             // Vérifier si c'est un problème de codec
             if (videoElement.videoWidth === 0 || videoElement.videoHeight === 0) {
-              console.error('❌ CODEC VIDÉO DÉFAILLANT détecté lors du blocage (dimensions = 0x0)');
-              
+
               if (!useTranscode) {
-                console.log('🔄 Basculement vers TRANSCODAGE pour résoudre le problème de codec...');
+
                 setLoadInfo('🔄 Problème de codec détecté - activation transcodage...');
                 setUseTranscode(true);
                 stalledCount = 0;
@@ -736,11 +694,11 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
             
             // Si toujours bloqué après 20 secondes, recharger
             if (stalledCount >= 10) {
-              console.log('🔄 Rechargement complet de la vidéo...');
+
               videoElement.load();
               setTimeout(() => {
                 videoElement.currentTime = currentPos;
-                videoElement.play().catch(err => console.error('Erreur play après reload:', err));
+                videoElement.play().catch(() => {});
               }, 1000);
               stalledCount = 0;
             }
@@ -748,7 +706,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
         } else {
           // La vidéo progresse normalement - désactiver immédiatement le message
           if (stalledCount > 0 || isStalled) {
-            console.log('✅ Vidéo débloquée - lecture normale');
+
             stalledCount = 0;
             setIsStalled(false);
             setStalledTime(0);
@@ -770,12 +728,12 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
     // ✅ LISTENERS PICTURE-IN-PICTURE
     const handleEnterPiP = () => {
       setIsPiP(true);
-      console.log('📺 Entrée Picture-in-Picture');
+
     };
 
     const handleLeavePiP = () => {
       setIsPiP(false);
-      console.log('📺 Sortie Picture-in-Picture');
+
     };
 
     videoElement.addEventListener('enterpictureinpicture', handleEnterPiP);
@@ -800,7 +758,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
       
       // ✅ CLEANUP PiP : Sortir du mode PiP à la fermeture
       if (document.pictureInPictureElement) {
-        document.exitPictureInPicture().catch(e => console.warn('Erreur exit PiP:', e));
+        document.exitPictureInPicture().catch(() => {});
       }
       
       // Sauvegarder une dernière fois à la fermeture
@@ -894,7 +852,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
       if (tracks[trackIndex]) {
         tracks[trackIndex].enabled = true;
         setCurrentAudioTrack(trackIndex);
-        console.log('🔊 Piste audio changée:', trackIndex);
+
       }
     }
     setShowSettingsMenu(false);
@@ -914,7 +872,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
         tracks[trackIndex].mode = 'showing';
       }
       setCurrentSubtitleTrack(trackIndex);
-      console.log('📝 Sous-titre changé:', trackIndex);
+
     }
     setShowSettingsMenu(false);
   };
@@ -929,12 +887,6 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
     }
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
-
-  console.log('🎬 VideoPlayer RENDER');
-  console.log('  - isLoading:', isLoading);
-  console.log('  - loadError:', loadError);
-  console.log('  - isPlaying:', isPlaying);
-  console.log('  - showControls:', showControls);
 
   const handleMouseMove = () => {
     setShowControls(true);
@@ -1011,7 +963,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
   // Nouvelles fonctions pour PiP et vitesse
   const togglePiP = async () => {
     if (!document.pictureInPictureEnabled) {
-      console.warn("⚠️ Picture-in-Picture non supporté");
+
       return;
     }
 
@@ -1024,7 +976,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
         setIsPiP(true);
       }
     } catch (err) {
-      console.error("❌ Erreur PiP:", err);
+
     }
   };
 
@@ -1034,7 +986,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
     if (videoRef.current) {
       videoRef.current.playbackRate = newRate;
     }
-    console.log(`🎬 Vitesse: ${newRate}x`);
+
   };
 
   useEffect(() => {
@@ -1073,29 +1025,22 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
     // Attendre que la vidéo soit chargée
     const activateSubtitles = () => {
       const textTracks = videoElement.textTracks;
-      console.log('📝 Nombre de pistes de sous-titres détectées:', textTracks.length);
-      
+
       if (textTracks.length > 0) {
         // Afficher toutes les pistes détectées
         for (let i = 0; i < textTracks.length; i++) {
           const track = textTracks[i];
-          console.log(`   Piste ${i}:`, {
-            kind: track.kind,
-            language: track.language,
-            label: track.label,
-            mode: track.mode
-          });
-          
+
           // Activer la première piste (celle ajoutée via <track default>)
           if (i === 0) {
             track.mode = 'showing';
-            console.log('✅ Sous-titres activés pour la piste 0');
+
           } else {
             track.mode = 'hidden';
           }
         }
       } else {
-        console.warn('⚠️ Aucune piste de sous-titres détectée dans textTracks');
+
       }
     };
 
@@ -1156,11 +1101,11 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
           toggleFullscreen(); // Double-clic = plein écran (standard YouTube/Netflix)
         }}
         onLoadedMetadata={() => {
-          console.log('✅ Métadonnées vidéo chargées');
+
           // Métadonnées chargées mais pas encore prêt à jouer
         }}
         onLoadStart={() => {
-          console.log('⏳ Début du chargement de la vidéo...');
+
           setIsLoading(true);
         }}
         onProgress={() => {
@@ -1175,12 +1120,12 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
               
               // Log détaillé seulement tous les 5%
               if (Math.round(percentBuffered) % 5 === 0) {
-                console.log(`📊 Buffer: ${percentBuffered.toFixed(1)}% (${bufferedEnd.toFixed(1)}s / ${duration.toFixed(1)}s)`);
+
               }
               
               // Auto-play quand on a au moins 3% de buffer (environ 10-30s selon la vidéo)
               if (percentBuffered >= 3 && isLoading && !video.paused) {
-                console.log('🚀 Buffer minimum atteint, lecture possible');
+
                 setIsLoading(false);
                 setLoadInfo(null);
               }
@@ -1190,23 +1135,23 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
         onWaiting={() => {
           // N'afficher le message de buffering que si la vidéo a déjà commencé
           if (videoRef.current && videoRef.current.currentTime > 0) {
-            console.log('⏸️ En attente de données (buffering)...');
+
             setLoadInfo('⏸️ Buffering...');
           }
         }}
         onStalled={() => {
           // Ne déclencher l'alerte que si la vidéo a déjà commencé
           if (videoRef.current && videoRef.current.currentTime > 0) {
-            console.warn('⚠️ Téléchargement bloqué - tentative de récupération...');
+
             setIsStalled(true);
           }
         }}
         onSuspend={() => {
-          console.log('⏸️ Téléchargement suspendu (normal pour économiser bande passante)');
+
           // C'est normal, le navigateur suspend le téléchargement quand il a assez de buffer
         }}
         onCanPlay={() => {
-          console.log('✅ Vidéo prête à être lue (buffer minimum atteint)');
+
           setIsLoading(false);
           setLoadError(null);
           setLoadInfo(null);  // Masquer immédiatement les messages
@@ -1217,15 +1162,13 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
           }
         }}
         onCanPlayThrough={() => {
-          console.log('✅ Vidéo entièrement bufferisée');
+
           setIsLoading(false);
           setLoadInfo(null);  // Masquer tous les messages
           setLoadError(null);
         }}
         onError={(e) => {
-          console.error('❌ Erreur de chargement vidéo:', e.target.error);
-          console.error('Code erreur:', e.target.error?.code);
-          console.error('Message:', e.target.error?.message);
+
           setIsLoading(false);
           
           const errorCode = e.target.error?.code;
@@ -1236,12 +1179,12 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
               errorMessage = '❌ Chargement annulé';
               // Tentative de rechargement automatique (max 2 fois)
               if (retryCount < 2) {
-                console.log(`🔄 Tentative de rechargement ${retryCount + 1}/2...`);
+
                 setRetryCount(retryCount + 1);
                 setTimeout(() => {
                   if (videoRef.current) {
                     videoRef.current.load();
-                    videoRef.current.play().catch(err => console.warn('Rechargement échoué:', err));
+                    videoRef.current.play().catch(() => {});
                   }
                 }, 1000);
                 setLoadInfo('🔄 Rechargement automatique...');
@@ -1254,12 +1197,12 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
               errorMessage = '🌐 Erreur réseau - Vérifiez votre connexion';
               // Tentative de rechargement automatique
               if (retryCountRef.current < 2) {
-                console.log(`🔄 Tentative de rechargement réseau ${retryCountRef.current + 1}/2...`);
+
                 retryCountRef.current = retryCountRef.current + 1;
                 setTimeout(() => {
                   if (videoRef.current) {
                     videoRef.current.load();
-                    videoRef.current.play().catch(err => console.warn('Rechargement échoué:', err));
+                    videoRef.current.play().catch(() => {});
                   }
                 }, 2000);
                 setLoadInfo('🔄 Reconnexion en cours...');
@@ -1269,7 +1212,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
             case 3: // MEDIA_ERR_DECODE
               // Erreur de décodage - basculer automatiquement vers le transcodage
               if (!useTranscode) {
-                console.log('🔄 Erreur de décodage détectée - Basculement automatique vers transcodage FFmpeg');
+
                 setLoadInfo('🔄 Format non supporté - Activation du transcodage FFmpeg...');
                 setUseTranscode(true); // Basculer vers transcodage
                 retryCountRef.current = 0; // Réinitialiser le compteur
@@ -1281,7 +1224,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
             case 4: // MEDIA_ERR_SRC_NOT_SUPPORTED
               // Format non supporté - essayer le transcodage
               if (!useTranscode) {
-                console.log('🔄 Format non supporté - Basculement automatique vers transcodage FFmpeg');
+
                 setLoadInfo('🔄 Format non compatible - Activation du transcodage FFmpeg...');
                 setUseTranscode(true); // Basculer vers transcodage
                 retryCountRef.current = 0; // Réinitialiser le compteur
@@ -1297,7 +1240,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
           setLoadError(errorMessage);
         }}
         onPlaying={() => {
-          console.log('▶️ Lecture en cours');
+
           setIsLoading(false);
           setIsStalled(false);
           setLoadInfo(null); // Masquer tous les messages de chargement/buffering
@@ -1312,17 +1255,16 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
             label={availableTracks?.subtitles?.find(t => t.index === selectedSubtitleTrack)?.title || 'Sous-titres'}
             default
             onLoad={(e) => {
-              console.log('✅ Sous-titres chargés avec succès !', e.target);
+
               // Vérifier que la piste est bien en mode "showing"
               const track = e.target.track;
               if (track && track.mode !== 'showing') {
-                console.log('🔄 Activation forcée des sous-titres (mode:', track.mode, '→ showing)');
+
                 track.mode = 'showing';
               }
             }}
             onError={(e) => {
-              console.error('❌ Erreur de chargement des sous-titres:', e);
-              console.error('URL:', e.target.src);
+
             }}
           />
         )}
@@ -1511,7 +1453,6 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
               
               {showSettingsMenu && (
                 <div className="settings-menu-youtube" onClick={(e) => e.stopPropagation()}>
-                  {console.log('📋 Menu paramètres ouvert - availableTracks:', availableTracks)}
                   <div className="settings-flex-row">
                     {/* PISTES AUDIO */}
                     {availableTracks && availableTracks.audio.length > 0 && (
@@ -1528,7 +1469,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
                             className={`settings-item ${selectedAudioTrack === track.index ? 'active' : ''}`}
                             onClick={() => {
                               setSelectedAudioTrack(track.index);
-                              console.log(`🔄 Changement de piste audio: ${track.title}`);
+
                             }}
                           >
                             <span className="item-label">{track.title || `Audio ${track.index}`}</span>
@@ -1559,7 +1500,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
                           className={`settings-item ${selectedSubtitleTrack === -1 ? 'active' : ''}`}
                           onClick={() => {
                             setSelectedSubtitleTrack(-1);
-                            console.log('🔄 Sous-titres désactivés');
+
                           }}
                         >
                           <span className="item-label">Désactivé</span>
@@ -1575,7 +1516,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
                             className={`settings-item ${selectedSubtitleTrack === track.index ? 'active' : ''}`}
                             onClick={() => {
                               setSelectedSubtitleTrack(track.index);
-                              console.log(`🔄 Changement de sous-titre: ${track.title}`);
+
                             }}
                           >
                             <span className="item-label">{track.title || `Sous-titre ${track.index}`}</span>
@@ -1604,7 +1545,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
                         className={`settings-item ${!useTranscode ? 'active' : ''}`}
                         onClick={() => {
                           if (useTranscode) {
-                            console.log('🔄 Désactivation du transcodage - Streaming direct');
+
                             setUseTranscode(false);
                             setShowSettingsMenu(false);
                           }
@@ -1622,7 +1563,7 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
                         className={`settings-item ${useTranscode ? 'active' : ''}`}
                         onClick={() => {
                           if (!useTranscode) {
-                            console.log('🔄 Activation du transcodage FFmpeg');
+
                             setLoadInfo('🔄 Activation du transcodage...');
                             setUseTranscode(true);
                             retryCountRef.current = 0;
