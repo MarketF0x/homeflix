@@ -1,102 +1,302 @@
-# 🎬 Homeflix# 🎬 Homeflix# 🎬 Homeflix
+<div align="center">
 
+# 🎬 Homeflix
 
+**Votre serveur de streaming personnel avec interface web moderne**
 
-Votre serveur de streaming personnel pour vos vidéos avec interface web moderne.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](CHANGELOG.md)
+[![Platform](https://img.shields.io/badge/platform-Windows-lightgrey.svg)](#)
+[![Python](https://img.shields.io/badge/python-3.8+-blue.svg)](#)
+[![Node](https://img.shields.io/badge/node-16+-green.svg)](#)
 
+[Installation](#-installation-rapide) • [Fonctionnalités](#-fonctionnalités) • [Documentation](#-documentation) • [Support](#-support)
 
-
----Votre serveur de streaming personnel pour vos vidéos avec interface web moderne.Votre serveur de streaming personnel pour vos vidéos avec interface web moderne.
-
-
-
-## 🚀 Démarrage
-
-
-
-### Installation---
-
-
-
-Double-cliquez sur **`INSTALLER.ps1`** pour installer automatiquement.
-
-
-
-**Déjà installé ?** Le script détecte automatiquement et propose :## 🚀 Démarrage---## 🚀 Démarrage Rapide
-
-- 🔧 **Réparation** - Répare les fichiers corrompus (conserve vos données)
-
-- 🔄 **Réinstallation** - Réinstalle tout en conservant la base de données
-
-
-
-📖 **Mode réparation** : [`.docs/MODE_REPARATION.md`](.docs/MODE_REPARATION.md)### Installation
-
-
-
-### Lancer l'Application
-
-
-
-Double-cliquez sur **`homeflix.ps1`** pour démarrer.Double-cliquez sur **`INSTALLER.ps1`** pour installer automatiquement.## 🚀 Démarrage### Première Installation
-
-
-
-L'application s'ouvre automatiquement dans votre navigateur.
-
-
-
-### Arrêter l'Application### Lancer l'Application
-
-
-
-Fermez simplement la fenêtre PowerShell ou appuyez sur `Ctrl+C`.
-
-
-
-### DésinstallationDouble-cliquez sur **`homeflix.ps1`** pour démarrer.### Lancer l'Application```powershell
-
-
-
-Pour désinstaller Homeflix :
-
-
-
-```powershellL'application s'ouvre automatiquement dans votre navigateur..\install.ps1
-
-.\DESINSTALLER.ps1
-
-```
-
-
-
-**Options** :### Arrêter l'ApplicationDouble-cliquez sur **`homeflix.ps1`** ou exécutez :```
-
-- `.\DESINSTALLER.ps1 -KeepData` - Conserve la base de données
-
-- `.\DESINSTALLER.ps1 -Force` - Désinstalle sans confirmation
-
-
-
-📖 **Guide complet** : [`.docs/GUIDE_DESINSTALLATION.md`](.docs/GUIDE_DESINSTALLATION.md)Fermez simplement la fenêtre PowerShell ou appuyez sur `Ctrl+C`.
-
-
+</div>
 
 ---
 
+## 📖 Description
 
+Homeflix est un serveur de streaming personnel open-source qui vous permet de gérer et regarder vos vidéos avec une interface web élégante et moderne. Alternative légère à Plex ou Jellyfin, Homeflix met l'accent sur la simplicité d'utilisation tout en offrant des fonctionnalités avancées.
 
-## 📁 Ajouter vos Vidéos### Désinstallation```powershell**Important** : Après l'installation, configurez votre clé API TMDb :
+### ✨ Points Forts
 
+- 🚀 **Installation en un clic** - Lancez l'installateur et c'est tout
+- 🎨 **Interface moderne** - Design réactif, sombre/clair, intuitive
+- 👥 **Multi-profils** - Chaque utilisateur sa progression et ses préférences
+- 📂 **Collections intelligentes** - Organisez vos films et séries automatiquement
+- 🎞️ **Métadonnées automatiques** - Affiches et informations via TMDb
+- 🎥 **Lecteur avancé** - Sous-titres, pistes audio, reprise automatique
+- 🔐 **100% local** - Vos données restent chez vous
+- 🆓 **Gratuit et open-source** - Licence MIT
 
+---
 
-1. Ouvrez le fichier **`settings.yaml`**
+## 🚀 Installation Rapide
 
-2. Ajoutez vos dossiers de vidéos :
+### Prérequis
 
-Pour désinstaller Homeflix :.\homeflix.ps1```powershell
+- **Windows 10/11** (64 bits)
+- **Python 3.8+** ([Télécharger](https://www.python.org/downloads/))
+- **Node.js 16+** ([Télécharger](https://nodejs.org/))
+- **FFmpeg** (optionnel, recommandé) ([Télécharger](https://ffmpeg.org/download.html))
+
+### Installation
+
+1. **Téléchargez** la dernière version de Homeflix
+2. **Extrayez** l'archive dans un dossier de votre choix
+3. **Double-cliquez** sur `INSTALLER.ps1`
+4. **Attendez** la fin de l'installation (quelques minutes)
+5. **C'est prêt !** L'application s'ouvre automatiquement
+
+### Configuration Initiale
+
+#### 1️⃣ Clé API TMDb (gratuite)
+
+Pour afficher les affiches et métadonnées :
+
+1. Créez un compte sur [themoviedb.org](https://www.themoviedb.org)
+2. Allez dans **Paramètres → API**
+3. Demandez une clé API (gratuit, instantané)
+4. Copiez la clé dans `settings.yaml`
+
+#### 2️⃣ Ajoutez vos dossiers vidéos
+
+Éditez `settings.yaml` :
 
 ```yaml
+tmdb:
+  api_key: "VOTRE_CLE_API_ICI"
+
+video_folders:
+  - "C:/Mes Videos/Films"
+  - "D:/Series"
+```
+
+**C'est tout !** Lancez `homeflix.ps1` et profitez.
+
+---
+
+## 🎯 Fonctionnalités
+
+### 🎬 Gestion de Bibliothèque
+
+- **Scan automatique** de vos dossiers vidéos
+- **Détection intelligente** (films, séries, documentaires)
+- **Métadonnées TMDb** (affiches, synopsis, acteurs, notes)
+- **Miniatures** générées automatiquement
+- **Recherche rapide** par titre, acteur, genre, année
+- **Tri et filtres** avancés
+
+### 👥 Profils Utilisateurs
+
+- **Profils multiples** pour toute la famille
+- **Protection par mot de passe** optionnelle
+- **Progression individuelle** - chaque profil sa reprise
+- **Préférences personnalisées** (langue audio/sous-titres)
+- **Historique de visionnage**
+
+### 📂 Collections
+
+- **Organisation automatique** (Marvel, Disney, franchises)
+- **Collections personnalisées**
+- **Fusion intelligente** des doublons
+- **Affiches de collection** personnalisables
+- **Gestion simplifiée**
+
+### 🎥 Lecteur Vidéo
+
+- **Lecture directe** ou **transcodage FFmpeg**
+- **Reprise automatique** là où vous étiez
+- **Sous-titres** (VTT, SRT) avec auto-sélection
+- **Pistes audio multiples** avec détection automatique
+- **Contrôles tactiles** et raccourcis clavier
+- **Mode plein écran** optimisé
+- **Sélection de qualité** (720p, 1080p, 4K)
+
+### 🔧 Fonctions Avancées
+
+- **Mode sombre/clair** avec transition fluide
+- **Masquer des vidéos** de la bibliothèque
+- **Marquer comme vu/non vu**
+- **Gestion des séries** par saisons et épisodes
+- **Export/Import** de collections
+- **API REST** complète pour intégrations
+
+---
+
+## 📚 Documentation
+
+- 📘 **[Guide Utilisateur](GUIDE_UTILISATEUR.md)** - Documentation complète
+- 🏗️ **[Guide de Build](BUILD_PRODUCTION.md)** - Pour les développeurs
+- ✅ **[Checklist Commercialisation](CHECKLIST_COMMERCIALISATION.md)** - État de préparation
+- 📝 **[CHANGELOG](CHANGELOG.md)** - Historique des versions
+- ⚖️ **[LICENSE](LICENSE)** - Termes de la licence MIT
+
+---
+
+## 💻 Utilisation
+
+### Démarrer Homeflix
+
+```powershell
+# Double-clic ou exécutez :
+.\homeflix.ps1
+```
+
+L'application s'ouvre automatiquement à : `http://localhost:5173`
+
+### Arrêter Homeflix
+
+- Fermez la fenêtre PowerShell, ou
+- Appuyez sur `Ctrl+C`
+
+### Mettre à jour
+
+```powershell
+# Téléchargez la nouvelle version et :
+.\INSTALLER.ps1
+# → Choisissez "Réparation" pour conserver vos données
+```
+
+---
+
+## 🛠️ Dépannage
+
+### Les vidéos ne se lisent pas
+
+**Solution** : Installez FFmpeg et activez le transcodage
+
+```powershell
+# Vérifier si FFmpeg est installé
+ffmpeg -version
+
+# Si non installé, téléchargez depuis ffmpeg.org
+```
+
+### Port déjà utilisé
+
+**Solution** : Libérez les ports 5173 et 8000
+
+```powershell
+# Trouver le processus
+netstat -ano | findstr :5173
+
+# Arrêter le processus (remplacez XXXX par le PID)
+Stop-Process -Id XXXX -Force
+```
+
+### Les affiches ne s'affichent pas
+
+**Solution** : Vérifiez votre clé API TMDb dans `settings.yaml`
+
+---
+
+## 🤝 Support
+
+### 📌 Issues GitHub
+
+Pour signaler un bug ou suggérer une fonctionnalité :
+[Ouvrir un ticket](https://github.com/MarketF0x/homeflix/issues)
+
+### 📧 Contact
+
+Pour toute question : voir les issues GitHub
+
+### 🌐 Communauté
+
+- ⭐ **Star le projet** si vous l'aimez !
+- 🐛 **Signalez les bugs** pour nous aider à améliorer
+- 💡 **Proposez des fonctionnalités**
+- 🔧 **Contribuez** au code (Pull Requests bienvenues)
+
+---
+
+## 🏗️ Pour les Développeurs
+
+### Architecture
+
+```
+homeflix/
+├── client/          # Frontend React + Vite
+├── server/          # Backend FastAPI (Python)
+├── electron/        # Packaging Electron
+└── installer/       # Scripts d'installation
+```
+
+### Développement
+
+```powershell
+# Installer les dépendances
+cd client
+npm install
+cd ../server
+pip install -r requirements.txt
+
+# Lancer en mode dev
+cd ..
+.\homeflix-dev.ps1
+```
+
+### Build de Production
+
+```powershell
+# Build client optimisé
+npm run build
+
+# Valider le build
+python validate-build.py
+
+# Créer une release
+.\create-release.ps1 -Version "1.0.0"
+```
+
+---
+
+## 📜 Licence
+
+Homeflix est distribué sous **licence MIT**. Voir [LICENSE](LICENSE) pour plus de détails.
+
+### Mentions Tierces
+
+- **TMDb** : Ce produit utilise l'API TMDb mais n'est ni approuvé ni certifié par TMDb.
+- **FFmpeg** : Utilisé comme outil externe optionnel (LGPL/GPL).
+- Voir [LICENSE](LICENSE) pour la liste complète des dépendances.
+
+---
+
+## 🙏 Crédits
+
+Homeflix est développé avec ❤️ par la communauté open-source.
+
+**Technologies utilisées :**
+
+- [React](https://react.dev/) - Interface utilisateur
+- [Vite](https://vitejs.dev/) - Build tool
+- [FastAPI](https://fastapi.tiangolo.com/) - Backend API
+- [SQLAlchemy](https://www.sqlalchemy.org/) - ORM
+- [TMDb API](https://www.themoviedb.org/documentation/api) - Métadonnées
+- [FFmpeg](https://ffmpeg.org/) - Traitement vidéo
+
+---
+
+## 🌟 Remerciements
+
+Merci à tous les contributeurs et utilisateurs qui rendent Homeflix meilleur chaque jour !
+
+**Vous aimez Homeflix ? Donnez-lui une ⭐ sur GitHub !**
+
+---
+
+<div align="center">
+
+**[⬆ Retour en haut](#-homeflix)**
+
+Made with ❤️ for the home streaming community
+
+</div>
+
 
 video_folders:
 

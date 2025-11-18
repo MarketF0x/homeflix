@@ -168,13 +168,13 @@ export default function App() {
     try {
       const profileId = currentProfile?.id || null;
       await deleteVideo(video.id, true, profileId); // Passe l'ID du profil
-      // Recharger les catégories pour mettre à jour l'affichage
-      await load(mode);
+      // ✅ Ne pas recharger les catégories, juste forcer le rechargement du cache
+      setCacheKey(Date.now());
     } catch (error) {
       console.error("Erreur lors de la suppression:", error);
       alert("Impossible de supprimer la vidéo");
     }
-  }, [mode, currentProfile]);
+  }, [currentProfile]);
   
   // Gestionnaire de mise à jour du cache (pour forcer le rechargement des miniatures)
   const handleUpdateCache = useCallback(async () => {
@@ -187,26 +187,18 @@ export default function App() {
   const handleCloseVideo = useCallback(() => {
     setSelectedVideo(null);
     
-    // Recharger les catégories pour mettre à jour la liste "À reprendre"
-    // Uniquement si un profil est sélectionné
-    if (currentProfile) {
-      load(mode).then(() => {
-        // Forcer le rechargement des images du carousel
-        setCacheKey(Date.now());
-        
-        // Restaurer la position de scroll après un court délai
-        setTimeout(() => {
-          window.scrollTo({
-            top: scrollPositionRef.current,
-            behavior: 'smooth'
-          });
-        }, 100);
+    // ✅ Ne pas recharger les catégories, juste forcer le rechargement du cache
+    // et restaurer la position de scroll
+    setCacheKey(Date.now());
+    
+    // Restaurer la position de scroll après un court délai
+    setTimeout(() => {
+      window.scrollTo({
+        top: scrollPositionRef.current,
+        behavior: 'smooth'
       });
-    } else {
-      // Si pas de profil, juste fermer la vidéo
-      setCacheKey(Date.now());
-    }
-  }, [mode, currentProfile]);
+    }, 100);
+  }, []);
   
   // Fonction pour sélectionner une vidéo (sauvegarde la position de scroll)
   const handleSelectVideo = useCallback((video) => {
@@ -497,13 +489,14 @@ export default function App() {
     };
   }, [selectedVideo, currentView, currentProfile]);
 
+  // ✅ Chargement initial uniquement quand un profil est sélectionné
   useEffect(() => {
-    // Ne charger que si un profil est sélectionné
-    if (currentProfile) {
+    // Ne charger qu'une seule fois au démarrage avec un profil
+    if (currentProfile && !categories) {
       load(mode);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, currentProfile]); // Ajouter currentProfile pour recharger quand le profil change
+  }, [currentProfile]); // Seulement quand le profil change
 
   // Rotation automatique du carousel toutes les 10 minutes
   useEffect(() => {
@@ -605,12 +598,7 @@ export default function App() {
       <div className="content">
         {/* Bande supérieure avec logo */}
         <div className="top-banner">
-          <h1
-            className="logo-banner"
-            data-text={"HOMEONE"}
-          >
-            {"HOMEONE"}
-          </h1>
+          <h1 className="logo-banner">HOMEONE</h1>
         </div>
         
         <header className="netflix-header">

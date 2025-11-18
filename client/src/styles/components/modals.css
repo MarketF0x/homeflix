@@ -144,9 +144,9 @@
 
 /* Bouton fermer */
 .modal-close-button {
-  background: none;
+  background: rgba(255,255,255,0.04);
   border: none;
-  font-size: 28px;
+  font-size: 24px;
   color: #fff;
   cursor: pointer;
   padding: 0;
@@ -155,12 +155,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  transition: background-color 0.2s;
+  border-radius: 10px;
+  line-height: 1;
+  transition: background-color 0.2s, box-shadow 0.2s, border-color 0.2s;
 }
 
 .modal-close-button:hover {
-  background-color: #333;
+  background: rgba(255,255,255,0.10);
+  backdrop-filter: saturate(160%) blur(8px);
+  -webkit-backdrop-filter: saturate(160%) blur(8px);
+  box-shadow: 0 8px 24px rgba(255,255,255,0.08) inset, 0 2px 12px rgba(0,0,0,0.3);
 }
 
 /* Zone scrollable du modal */
@@ -205,15 +209,16 @@
 /* Carte de collection */
 .collection-card {
   background-color: #222;
-  border-radius: 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .collection-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 4px 20px rgba(229, 9, 20, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(229, 9, 20, 0.22);
 }
 
 /* Header de la carte collection */
@@ -221,6 +226,12 @@
   padding: 15px;
   background-color: #000000;
   border-bottom: 1px solid #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  position: relative;
+  padding-right: 140px; /* réserve de place pour 3 icônes + marges */
 }
 
 .collection-card-title {
@@ -228,6 +239,26 @@
   font-size: 16px;
   font-weight: 600;
   color: #fff;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Ligne titre + action inline (renommer) */
+/* .collection-card-title-row supprimé (bouton inline retiré) */
+
+/* Conteneur d'actions à droite: ne rétrécit pas et reste sur une ligne */
+.collection-card-tools {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 6px;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  z-index: 2;
+  pointer-events: auto;
 }
 
 .collection-card-count {

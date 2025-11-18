@@ -15,41 +15,10 @@
     transparent 0%, rgba(229, 9, 20, 0.3) 20%, rgba(229, 9, 20, 0.8) 50%, rgba(229, 9, 20, 0.3) 80%, transparent 100%
   ) 1;
   box-shadow: 0 4px 20px rgba(0,0,0,0.8), 0 0 60px rgba(229,9,20,0.15), inset 0 1px 0 rgba(255,255,255,0.05);
-  overflow: hidden;
+  overflow: visible; /* changé de hidden à visible pour ne pas clipper l'effet */
 }
 
-.top-banner::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background:
-    /* bande sombre très légère pour lisibilité derrière le titre */
-    linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.22) 50%, transparent 60%),
-    radial-gradient(ellipse at center, rgba(229, 9, 20, 0.08) 0%, transparent 50%);
-  animation: bannerPulse 8s ease-in-out infinite;
-}
-
-/* Faisceau de projecteur très subtil derrière le titre (cinéma) */
-.top-banner::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 1200px;
-  height: 1200px;
-  transform: translate(-50%, -55%) rotate(-8deg);
-  background:
-    radial-gradient(ellipse at 40% 50%, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 35%, transparent 60%),
-    conic-gradient(from 200deg at 50% 50%, rgba(255,255,255,0.05), rgba(255,255,255,0) 45%, rgba(255,255,255,0.05) 90%, rgba(255,255,255,0));
-  filter: blur(26px);
-  mix-blend-mode: screen;
-  pointer-events: none;
-  animation: beamDrift 22s ease-in-out infinite alternate;
-  opacity: .7; /* intensité légèrement accrue */
-}
+/* (Projecteur retiré pour compatibilité cross-plateforme) */
 
 @keyframes beamDrift {
   0% { transform: translate(-52%, -58%) rotate(-12deg) scale(1.0); opacity: .45; }
@@ -65,16 +34,17 @@
   margin: 0;
   padding-right: 16px;
   position: relative;
+  z-index: 10;
   text-transform: uppercase;
   font-family: 'Arial Black', 'Helvetica', sans-serif;
-  /* Dégradé rouge avec une touche dorée très légère pour un effet "cinéma" premium */
+  
+  /* Dégradé rouge animé compatible cross-browser */
   background: linear-gradient(145deg,
     #ff1a1a 0%,
-    #e50914 12%,
-    #ff4444 26%,
-    #e50914 38%,
-    #ffb84d 42%, /* éclat ambré subtil */
-    #b20710 58%,
+    #e50914 15%,
+    #ff4444 30%,
+    #e50914 45%,
+    #b20710 60%,
     #e50914 75%,
     #ff1a1a 100%
   );
@@ -82,77 +52,30 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  color: transparent;
   animation: gradientShift 6s ease infinite;
-  filter: drop-shadow(0 0 20px rgba(229,9,20,.85)) drop-shadow(0 0 40px rgba(229,9,20,.55)) drop-shadow(0 6px 14px rgba(0,0,0,.85)) drop-shadow(0 14px 28px rgba(0,0,0,.7));
-  /* relief + halo ambré discret mais ombre portée plus marquée */
-  text-shadow:
-    0 1px 0 rgba(0,0,0,0.70),
-    0 2px 3px rgba(0,0,0,0.78),
-    0 0 2px rgba(0,0,0,0.85), /* liseré sombre juste au bord */
-    0 4px 12px rgba(0,0,0,0.75),
-    0 10px 26px rgba(0,0,0,0.70),
-    0 0 24px rgba(255, 184, 77, 0.22);
-  -webkit-text-stroke: 1.2px rgba(0,0,0,0.70); /* liseré plus épais et plus sombre */
-  will-change: transform, filter;
-  transition: transform 0.6s cubic-bezier(.2,.8,.2,1), filter 0.6s ease;
+  
+  /* Ombres pour relief (compatible partout) */
+  filter: drop-shadow(0 0 18px rgba(229,9,20,0.9)) 
+          drop-shadow(0 0 35px rgba(229,9,20,0.6)) 
+          drop-shadow(0 5px 12px rgba(0,0,0,0.85));
+  
+  will-change: filter;
+  transition: filter 0.6s ease;
 }
 
-@keyframes gradientShift { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
-
-/* Utilise l'attribut data-text pour reproduire l'ancien rendu */
-.logo-banner::before,
-.logo-banner::after {
-  content: attr(data-text);
-  position: absolute;
-  top: 0; left: 0;
-  padding-right: 16px;
-  letter-spacing: 16px;
+.logo-banner:hover {
+  filter: drop-shadow(0 0 24px rgba(229,9,20,1)) 
+          drop-shadow(0 0 45px rgba(229,9,20,0.7)) 
+          drop-shadow(0 6px 16px rgba(0,0,0,0.9));
 }
 
-.logo-banner::before {
-  /* Balayage lumineux plus visible */
-  background: linear-gradient(100deg,
-    transparent 0%,
-    transparent 44%,
-    rgba(255,255,255,.95) 50%,
-    rgba(255,255,255,.65) 52%,
-    transparent 58%,
-    transparent 100%
-  );
-  background-size: 220% 100%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: shineSweep 10s ease-in-out infinite; /* 2 passages par cycle */
-  z-index: 2;
+@keyframes gradientShift { 
+  0%,100%{background-position:0% 50%} 
+  50%{background-position:100% 50%} 
 }
 
-@keyframes shineSweep {
-  0%   { background-position: -220% 0; }
-  25%  { background-position:  220% 0; }
-  50%  { background-position: -220% 0; }
-  75%  { background-position:  220% 0; }
-  100% { background-position:  220% 0; }
-}
-
-.logo-banner::after {
-  background:
-    /* ligne de flare horizontale interne (dans les lettres) */
-    linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.28) 50%, transparent 100%),
-    linear-gradient(145deg,#e50914,#ff4444,#e50914);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  filter: blur(20px);
-  opacity: .6;
-  z-index: -1;
-  animation: glowPulse 3s ease-in-out infinite;
-}
-
-@keyframes glowPulse { 0%,100%{filter:blur(20px);opacity:.6} 50%{filter:blur(30px);opacity:.9} }
-
-/* Légère respiration au survol (sans bouger la mise en page) */
-.logo-banner:hover { transform: perspective(900px) rotateX(1deg) rotateY(-1deg) scale(1.02); }
+/* Pas de pseudo-éléments pour éviter les incompatibilités */
 
 /* ======== HEADER (style legacy) ======== */
 .netflix-header {
@@ -637,13 +560,13 @@
     -webkit-text-stroke: 0.7px rgba(0,0,0,0.65); 
   }
   
-  /* Désactiver les pseudo-éléments sur mobile pour éviter la superposition */
-  .logo-banner::before,
+  /* Alléger les effets sur mobile: garder le balayage doux, retirer le reste */
   .logo-banner::after,
   .top-banner::before,
   .top-banner::after {
     display: none;
   }
+  .logo-banner::before { opacity: 0.65; animation-duration: 12s; }
   
   .netflix-header {
     padding: 8px 10px;
@@ -764,12 +687,12 @@
   -webkit-text-stroke: 0.7px rgba(0,0,0,0.65); 
 }
 
-.is-mobile .logo-banner::before,
 .is-mobile .logo-banner::after,
 .is-mobile .top-banner::before,
 .is-mobile .top-banner::after {
   display: none;
 }
+.is-mobile .logo-banner::before { opacity: 0.65; animation-duration: 12s; }
 
 .is-mobile .netflix-header {
   padding: 8px 10px;

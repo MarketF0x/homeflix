@@ -73,10 +73,15 @@ export default defineConfig({
     target: 'es2020',
     // Chunk size warnings à 1MB
     chunkSizeWarningLimit: 1000,
-    // Source maps pour debug production (désactiver si problème de taille)
+    // Source maps désactivées en production
     sourcemap: false,
     // Minification optimale avec esbuild
     minify: 'esbuild',
+    // Configuration esbuild pour suppression console.log
+    esbuild: {
+      drop: ['console', 'debugger'],
+      pure: ['console.log', 'console.warn', 'console.debug'],
+    },
     // Rollup options pour code splitting intelligent
     rollupOptions: {
       output: {

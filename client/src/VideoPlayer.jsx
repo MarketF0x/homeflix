@@ -154,9 +154,11 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
   useEffect(() => {
     const fetchTracks = async () => {
       try {
+        console.log('🔍 Chargement des pistes pour:', video.path);
         const response = await fetch(`${baseUrl}/api/stream/tracks?path=${encodeURIComponent(video.path)}`);
         if (response.ok) {
           const tracks = await response.json();
+          console.log('✅ Pistes chargées:', tracks);
           setAvailableTracks(tracks);
           
           // Auto-sélectionner la première piste audio française si disponible
@@ -166,6 +168,8 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
           } else if (tracks.audio.length > 0) {
             setSelectedAudioTrack(tracks.audio[0].index);
           }
+        } else {
+          console.error('❌ Erreur réponse tracks:', response.status);
         }
       } catch (error) {
         console.warn('⚠️ Erreur chargement pistes:', error);
@@ -1335,15 +1339,16 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
               
               {showSettingsMenu && (
                 <div className="settings-menu-youtube" onClick={(e) => e.stopPropagation()}>
+                  {console.log('📋 Menu paramètres ouvert - availableTracks:', availableTracks)}
                   <div className="settings-flex-row">
-                    {/* PISTES SOURCE (Transcodage uniquement) */}
-                    {useTranscode && availableTracks && availableTracks.audio.length > 0 && (
+                    {/* PISTES AUDIO */}
+                    {availableTracks && availableTracks.audio.length > 0 && (
                       <div className="settings-section">
                         <div className="settings-section-header" style={{color: '#ff6b35'}}>
                           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
                           </svg>
-                          Piste audio source
+                          Piste audio
                         </div>
                         {availableTracks.audio.map((track) => (
                           <button
@@ -1368,6 +1373,53 @@ export default function VideoPlayer({ video, onClose, currentProfile }) {
                         ))}
                       </div>
                     )}
+                    
+                    {/* SOUS-TITRES */}
+                    {availableTracks && availableTracks.subtitles.length > 0 && (
+                      <div className="settings-section">
+                        <div className="settings-section-header" style={{color: '#4CAF50'}}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM4 12h4v2H4v-2zm10 6H4v-2h10v2zm6 0h-4v-2h4v2zm0-4H10v-2h10v2z"/>
+                          </svg>
+                          Sous-titres
+                        </div>
+                        <button
+                          className={`settings-item ${selectedSubtitleTrack === -1 ? 'active' : ''}`}
+                          onClick={() => {
+                            setSelectedSubtitleTrack(-1);
+                            console.log('🔄 Sous-titres désactivés');
+                          }}
+                        >
+                          <span className="item-label">Désactivé</span>
+                          {selectedSubtitleTrack === -1 && (
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="check-mark">
+                              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                            </svg>
+                          )}
+                        </button>
+                        {availableTracks.subtitles.map((track) => (
+                          <button
+                            key={`source-subtitle-${track.index}`}
+                            className={`settings-item ${selectedSubtitleTrack === track.index ? 'active' : ''}`}
+                            onClick={() => {
+                              setSelectedSubtitleTrack(track.index);
+                              console.log(`🔄 Changement de sous-titre: ${track.title}`);
+                            }}
+                          >
+                            <span className="item-label">{track.title || `Sous-titre ${track.index}`}</span>
+                            {track.language !== 'unknown' && (
+                              <span className="item-badge">{track.language.toUpperCase()}</span>
+                            )}
+                            {selectedSubtitleTrack === track.index && (
+                              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="check-mark">
+                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                              </svg>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    
                     {/* MODE DE LECTURE */}
                     <div className="settings-section">
                       <div className="settings-section-header">

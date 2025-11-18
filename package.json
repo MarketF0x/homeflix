@@ -1,8 +1,25 @@
 {
-  "name": "homeflix-root",
-  "private": true,
+  "name": "homeflix",
+  "version": "1.0.0",
+  "description": "Serveur de streaming personnel pour vos vidéos avec interface web moderne",
+  "author": "Homeflix Contributors",
+  "license": "MIT",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MarketF0x/homeflix.git"
+  },
+  "keywords": [
+    "streaming",
+    "video",
+    "media-server",
+    "plex-alternative",
+    "self-hosted",
+    "home-media"
+  ],
   "scripts": {
     "dev": "npm --prefix client run dev",
+    "build": "npm --prefix client run build",
     "build:client": "npm --prefix client run build",
     "dev:client": "npm --prefix client run dev",
     "deploy:electron": "powershell -ExecutionPolicy Bypass -File scripts/deploy-client-electron.ps1",
@@ -12,5 +29,9 @@
     "build:deploy:norestart": "powershell -ExecutionPolicy Bypass -File scripts/build-and-deploy.ps1 -NoRestart",
     "build:deploy:skipserver": "powershell -ExecutionPolicy Bypass -File scripts/build-and-deploy.ps1 -SkipServerCopy"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  }
 }

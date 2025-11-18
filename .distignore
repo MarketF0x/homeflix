@@ -1,0 +1,78 @@
+# Fichiers et Dossiers à Exclure de la Distribution
+
+# Développement
+*.log
+*.log.*
+__pycache__/
+.pytest_cache/
+.venv/
+.venv-*/
+node_modules/
+.vscode/
+.idea/
+
+# Tests
+tests/
+test_*.py
+*_test.py
+pytest.ini
+
+# Documentation de développement
+AUDIT_*.md
+CORRECTIFS_*.md
+OPTIMISATIONS_*.md
+NETTOYAGE_*.md
+IMPLEMENTATION_*.md
+INDEX_FICHIERS_CREES.md
+RESUME_AUDIT_EXECUTIF.md
+.docs/archives/
+
+# Scripts de développement
+scripts/cleanup*.ps1
+scripts/watch-servers.ps1
+scripts/migrate_*.py
+homeflix-dev.ps1
+homeflix-stable.ps1
+stop-dev.ps1
+deploy-ui-clean.ps1
+
+# Builds temporaires
+client/dist/
+electron/dist/
+*.tmp
+*.temp
+_temp_*
+css-backup/
+
+# Base de données de développement
+homeflix_dev.db
+*.db-journal
+
+# Certificats de développement (à regénérer par l'utilisateur)
+certs/
+
+# Configuration locale
+.env.local
+.env.development
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+
+# Workspace
+*.code-workspace
+
+# Dossier stable (copie de travail)
+homeflix-stable/
+
+# Données utilisateur (ne pas distribuer)
+data/posters/
+data/thumbs/
+homeflix.db
+settings.yaml.backup

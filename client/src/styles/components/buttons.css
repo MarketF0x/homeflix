@@ -52,9 +52,9 @@
 /* Bouton secondaire */
 .btn-secondary {
   padding: 12px 24px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: none;
   border-radius: 8px;
-  background: transparent;
+  background: rgba(255,255,255,0.06);
   color: white;
   font-size: 14px;
   font-weight: 600;
@@ -63,8 +63,7 @@
 }
 
 .btn-secondary:hover {
-  border-color: #e50914;
-  background: rgba(229, 9, 20, 0.1);
+  background: rgba(255,255,255,0.12);
 }
 
 /* Bouton icon */
@@ -79,12 +78,12 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color 0.2s, box-shadow 0.2s, border-color 0.2s, transform 0.2s;
 }
 
 .btn-icon:hover {
   background: rgba(255, 255, 255, 0.2);
-  transform: scale(1.1);
+  transform: scale(1.08);
 }
 
 /* Bouton danger */
@@ -111,6 +110,46 @@
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
+}
+
+/* Tailles réduites */
+.btn-sm {
+  padding: 6px 12px !important;
+  font-size: 12px !important;
+  border-radius: 6px !important;
+}
+
+/* Taille encore plus compacte */
+/* .btn-xs supprimé (bouton inline retiré) */
+
+/* Variante cristal réutilisable */
+.btn-glass {
+  background: rgba(255,255,255,0.06) !important;
+  border: none !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.06) inset, 0 8px 24px rgba(0,0,0,0.25);
+  backdrop-filter: saturate(160%) blur(8px);
+  -webkit-backdrop-filter: saturate(160%) blur(8px);
+}
+
+.btn-glass:hover {
+  background: rgba(255,255,255,0.10) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.08) inset, 0 10px 28px rgba(0,0,0,0.3);
+}
+
+/* Spécifique aux boutons icône en version glass: pas d'agrandissement */
+.btn-icon.btn-glass:hover { transform: none; }
+
+/* Dimension réduite pour les icônes compactes */
+.btn-icon.btn-sm { width: 32px; height: 32px; border-radius: 8px; }
+/* .btn-icon.btn-xs supprimé (bouton inline retiré) */
+
+/* État désactivé générique */
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-danger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 @media (max-width: 768px) {
